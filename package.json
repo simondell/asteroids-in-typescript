@@ -1,0 +1,38 @@
+{
+  "name": "asteroids_typescript",
+  "version": "0.0.1",
+  "description": "Some time ago, I took SebLy's CreativeJS course. One of the examples we built was a simple Asteroids clone. Years later, now under Covid-19 lockdown, I have time spare to extend it. I'm also keen to expand my TypeScript experience, so it's in TS.",
+  "main": "dist/index.html",
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
+    "@babel/preset-typescript": "^7.9.0",
+    "babel-jest": "^25.3.0",
+    "jest": "^25.3.0",
+    "ts-loader": "^6.2.2",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/simondell/asteroids_typescript.git"
+  },
+  "keywords": [
+    "typescript",
+    "jest",
+    "canvas",
+    "HTMLcanvas",
+    "creativejs"
+  ],
+  "author": "Simon Dell (based on work by Seb Lee-Delisle)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/simondell/asteroids_typescript/issues"
+  },
+  "homepage": "https://github.com/simondell/asteroids_typescript#readme"
+}
