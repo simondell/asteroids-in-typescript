@@ -1,11 +1,14 @@
 {
   "compilerOptions": {
-    "allowJs": true,
-    "jsx": "react",
+    "allowJs": false,
     "module": "es6",
     "noImplicitAny": true,
     "outDir": "./dist/",
     "sourceMap": true,
     "target": "es6"
-  }
+  },
+  "exclude": [
+    "src/game",
+    "**/*.test.*"
+  ]
 }

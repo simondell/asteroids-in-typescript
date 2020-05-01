@@ -1,3 +1,3 @@
-import { greeter } from './deps'
+import { greeter } from './deps.js'
 
-greeter('world')
+greeter('cats')
