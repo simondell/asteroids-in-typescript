@@ -9,6 +9,7 @@
     "@babel/preset-env": "^7.9.5",
     "@babel/preset-typescript": "^7.9.0",
     "babel-jest": "^25.3.0",
+    "http-server": "^0.12.3",
     "jest": "^25.3.0",
     "ts-loader": "^6.2.2",
     "typescript": "^3.8.3",
