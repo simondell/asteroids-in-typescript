@@ -5,18 +5,11 @@
   "main": "dist/index.html",
   "dependencies": {},
   "devDependencies": {
-    "@babel/core": "^7.9.0",
-    "@babel/preset-env": "^7.9.5",
-    "@babel/preset-typescript": "^7.9.0",
-    "babel-jest": "^25.3.0",
     "http-server": "^0.12.3",
-    "jest": "^25.3.0",
-    "ts-loader": "^6.2.2",
-    "typescript": "^3.8.3",
-    "webpack": "^4.42.1",
-    "webpack-cli": "^3.3.11"
+    "typescript": "^3.8.3"
   },
   "scripts": {
+    "start": "tsc --watch",
     "test": "jest"
   },
   "repository": {
