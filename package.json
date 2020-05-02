@@ -1,0 +1,24 @@
+{
+  "name": "ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/simondell/asteroids-in-typescript.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/simondell/asteroids-in-typescript/issues"
+  },
+  "homepage": "https://github.com/simondell/asteroids-in-typescript#readme",
+  "devDependencies": {
+    "http-server": "^0.12.3",
+    "typescript": "^3.8.3"
+  }
+}
