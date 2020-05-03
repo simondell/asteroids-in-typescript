@@ -37,7 +37,7 @@ function renderRocket (context: CanvasRenderingContext2D, rocket: Rocket): void 
 	context.beginPath()
 	context.moveTo( -10, -10 )
 	context.lineTo( -10, 10 )
-	context.lineTo( 14, 0 )
+	context.lineTo( 23, 0 )
 	context.closePath()
 	context.stroke()
 
@@ -50,7 +50,7 @@ function degreesToRadians (angle: number): number {
 
 const state = {
 	Rocket: {
-		angle: 0,
+		angle: 60,
 		position: {
 			x: canvas.width / 2,
 			y: canvas.height / 2,
