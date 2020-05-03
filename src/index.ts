@@ -1,3 +1,10 @@
+import {
+	Action,
+	createStore,
+	Dispatch,
+	Store,
+} from './store.js'
+
 const canvas = document.createElement( 'canvas' )
 const context = canvas.getContext( '2d' )
 
@@ -50,12 +57,6 @@ function degreesToRadians (angle: number): number {
 
 
 // store ///////////////////////////////////////////////////////////////////////
-interface Action {
-	error?: Error
-	payload?: any
-	type: string
-}
-
 const defaultRocket = {
 	angle: 60,
 	position: {
@@ -64,11 +65,6 @@ const defaultRocket = {
 	}
 }
 
-// interface Reducer<T> {
-// 	state: any
-// 	action: Action
-// }
-
 function rocket (
 	state = defaultRocket,
 	action?: Action
@@ -76,51 +72,12 @@ function rocket (
 	return state
 }
 
-// interface Selector<T> {
-// 	(s: Store): T
-// }
-
 function getRocket (state: Store): Rocket {
 	return state.rocket
 }
 
 const [store, dispatch] = createStore({ rocket })
 
-interface ReducerMap {
-	[key: string]: Function
-}
-
-interface Store {
-	[key: string]: any
-}
-
-interface Dispatch {
-	(a: Action): void
-}
-
-// naive `composeReducers`/`useReducer`
-
-function createStore (reducerMap: {[key: string]: Function}): [Store, Dispatch] {
-	const createAction: Action = { type: 'CREATE' }
-	const sliceNames = Object.keys(reducerMap)
-	const store = sliceNames.reduce(getDefaultState, {} as Store)
-
-	return [store, dispatch]
-
-	function getDefaultState (store: Object, sliceName: string): Object {
-		return {
-			...store,
-			[sliceName]: reducerMap[sliceName](undefined, createAction)
-		}
-	}
-
-	function dispatch(action: Action): void {
-		sliceNames.forEach((sliceName: string) => {
-			store[sliceName] = reducerMap[sliceName](store[sliceName], action)
-		})
-	}
-}
-////////////////////////////////////////////////////////////////////////////////
 
 // controls ////////////////////////////////////////////////////////////////////
 enum CONTROLS {
