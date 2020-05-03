@@ -58,4 +58,9 @@ const state = {
 	}
 }
 
-renderRocket( context, state.Rocket )
+
+function draw (): void {
+	renderRocket( context, state.Rocket )
+}
+
+const loop = requestAnimationFrame(draw)
