@@ -16,19 +16,19 @@ interface Vector2 {
 	y: number
 }
 
-interface Ship {
+interface Rocket {
 	angle: number
 	position: Vector2
 }
 
-function renderShip(context: CanvasRenderingContext2D, ship: Ship): void {
+function renderRocket (context: CanvasRenderingContext2D, rocket: Rocket): void {
 	context.save()
 	context.translate(
-		ship.position.x,
-		ship.position.y
+		rocket.position.x,
+		rocket.position.y
 	)
 
-	const rads = degreesToRadians( ship.angle )
+	const rads = degreesToRadians( rocket.angle )
 	context.rotate( rads )
 
 	context.strokeStyle = "#fff"
@@ -49,7 +49,7 @@ function degreesToRadians (angle: number): number {
 }
 
 const state = {
-	ship: {
+	Rocket: {
 		angle: 0,
 		position: {
 			x: canvas.width / 2,
@@ -58,4 +58,4 @@ const state = {
 	}
 }
 
-renderShip( context, state.ship )
+renderRocket( context, state.Rocket )
