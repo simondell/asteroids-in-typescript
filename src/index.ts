@@ -13,11 +13,20 @@ canvas.height = 600
 
 document.body.appendChild( canvas )
 
-context.strokeStyle = "#ffffff"
-context.lineWidth = 2
-context.fillStyle = 'rgb(15, 8, 50)'
-context.fillRect( 0, 0, 800, 600 )
+// interface RenderFunction {
+// 	(c: CanvasRenderingContext2D ): void
+// }
 
+// background //////////////////////////////////////////////////////////////////
+function renderBackground ( context: CanvasRenderingContext2D ) {
+	context.strokeStyle = "#ffffff"
+	context.lineWidth = 2
+	context.fillStyle = 'rgb(15, 8, 50)'
+	context.fillRect( 0, 0, 800, 600 )
+}
+////////////////////////////////////////////////////////////////////////////////
+
+// rocket //////////////////////////////////////////////////////////////////////
 interface Vector2 {
 	x: number
 	y: number
@@ -28,7 +37,10 @@ interface Rocket {
 	position: Vector2
 }
 
-function renderRocket (context: CanvasRenderingContext2D, rocket: Rocket): void {
+function renderRocket (
+	context: CanvasRenderingContext2D,
+	rocket: Rocket
+): void {
 	context.save()
 	context.translate(
 		rocket.position.x,
@@ -55,8 +67,6 @@ function degreesToRadians (angle: number): number {
 	return angle * Math.PI / 180
 }
 
-
-// store ///////////////////////////////////////////////////////////////////////
 const defaultRocket = {
 	angle: 60,
 	position: {
@@ -65,19 +75,42 @@ const defaultRocket = {
 	}
 }
 
+enum rocketActions {
+	ROTATE_LEFT = 'ROCKET/ROTATE_LEFT',
+	ROTATE_RIGHT = 'ROCKET/ROTATE_RIGHT',
+}
+
+const rotateLeft = { type: rocketActions.ROTATE_LEFT }
+const rotateRight = { type: rocketActions.ROTATE_RIGHT }
+
 function rocket (
 	state = defaultRocket,
-	action?: Action
-) {
-	return state
+	action: Action
+){
+	switch(action.type) {
+		case rocketActions.ROTATE_LEFT:
+			return {
+				...state,
+				angle: state.angle - 2
+			}
+		case rocketActions.ROTATE_RIGHT:
+			return {
+				...state,
+				angle: state.angle + 2
+			}
+		default:
+			return state
+	}
 }
 
 function getRocket (state: Store): Rocket {
 	return state.rocket
 }
+////////////////////////////////////////////////////////////////////////////////
 
+// store ///////////////////////////////////////////////////////////////////////
 const [store, dispatch] = createStore({ rocket })
-
+////////////////////////////////////////////////////////////////////////////////
 
 // controls ////////////////////////////////////////////////////////////////////
 enum CONTROLS {
@@ -89,9 +122,15 @@ enum CONTROLS {
 }
 
 function onKeyDown (event: KeyboardEvent): void {
-	switch(event.keyCode) {
+	event.preventDefault()
+
+	switch( event.keyCode )
+	{
 		case CONTROLS.LEFT:
-			dispatch({ type: 'ROTATE/LEFT' })
+			dispatch( rotateLeft )
+			break;
+		case CONTROLS.RIGHT:
+			dispatch( rotateRight )
 			break;
 	}
 }
@@ -100,9 +139,13 @@ document.addEventListener('keydown', onKeyDown)
 ////////////////////////////////////////////////////////////////////////////////
 
 // game loop ///////////////////////////////////////////////////////////////////
-function draw (): void {
+function draw (): void
+{
+	renderBackground( context)
 	renderRocket( context, getRocket(store) )
+
+	requestAnimationFrame(draw)
 }
 
-const loop = requestAnimationFrame(draw)
+draw()
 ////////////////////////////////////////////////////////////////////////////////

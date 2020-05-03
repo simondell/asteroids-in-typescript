@@ -4,30 +4,29 @@ export interface Action {
 	type: string
 }
 
+export interface Dispatch {
+	( a: Action ): void
+}
+
+export interface Reducer<T> {
+	( state: T, action: Action ): T
+}
+
 export interface ReducerMap {
-	[key: string]: Function
+	[ key: string ]: Reducer<any>
+}
+
+export interface Selector<T> {
+	( s: Store ): T
 }
 
 export interface Store {
-	[key: string]: any
+	[ key: string ]: any
 }
 
-export interface Dispatch {
-	(a: Action): void
-}
-
-// TODO: delete these or work out how to better type Reducers and Selectors
-// export interface Reducer<T> {
-// 	state: any
-// 	action: Action
-// }
-
-// export interface Selector<T> {
-// 	(s: Store): T
-// }
 
 // naive `composeReducers`/`useReducer`
-export function createStore (reducerMap: {[key: string]: Function}): [Store, Dispatch] {
+export function createStore ( reducerMap: ReducerMap ): [Store, Dispatch] {
 	const createAction: Action = { type: 'CREATE' }
 	const sliceNames = Object.keys(reducerMap)
 	const store = sliceNames.reduce(getDefaultState, {} as Store)
