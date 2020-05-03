@@ -58,4 +58,4 @@ const state = {
 	}
 }
 
-renderShip(context, state.ship)
+renderShip( context, state.ship )
