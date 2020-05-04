@@ -1,5 +1,6 @@
 import {
 	Action,
+	createAction,
 	createStore,
 	Dispatch,
 	Store,
@@ -113,6 +114,39 @@ const [store, dispatch] = createStore({ rocket })
 ////////////////////////////////////////////////////////////////////////////////
 
 // controls ////////////////////////////////////////////////////////////////////
+enum Directions {
+	NEUTRAL,
+	LEFT,
+	RIGHT,
+}
+
+enum ControlsActions {
+	SET_DIRECTION = 'CONTROLS/SET_DIRECTION'
+}
+const setDirection = createAction(ControlsActions.SET_DIRECTION)
+
+const defaultControls = {
+	direction: Directions.NEUTRAL,
+	// thrust: false,
+	// shoot: false,
+}
+
+function controls (
+	state = defaultControls,
+	action: Action
+){
+	switch(action.type) {
+		case ControlsActions.SET_DIRECTION:
+			return {
+				...state,
+				direction: action.payload
+			}
+		default:
+			return state
+	}
+}
+
+
 enum CONTROLS {
 	LEFT = 37,
 	// POWER = 81,
@@ -124,23 +158,33 @@ enum CONTROLS {
 function onKeyDown (event: KeyboardEvent): void {
 	event.preventDefault()
 
-	switch( event.keyCode )
-	{
+	switch( event.keyCode ) {
 		case CONTROLS.LEFT:
-			dispatch( rotateLeft )
+			dispatch( setDirection( Directions.LEFT ) )
 			break;
 		case CONTROLS.RIGHT:
-			dispatch( rotateRight )
+			dispatch( setDirection( Directions.RIGHT ) )
+			break;
+	}
+}
+
+function onKeyUp (event: KeyboardEvent): void {
+	event.preventDefault()
+
+	switch( event.keyCode ) {
+		case CONTROLS.LEFT:
+		case CONTROLS.RIGHT:
+			dispatch( setDirection( Directions.NEUTRAL ) )
 			break;
 	}
 }
 
 document.addEventListener('keydown', onKeyDown)
+document.addEventListener('keydown', onKeyUp)
 ////////////////////////////////////////////////////////////////////////////////
 
 // game loop ///////////////////////////////////////////////////////////////////
-function draw (): void
-{
+function draw (): void {
 	renderBackground( context)
 	renderRocket( context, getRocket(store) )
 

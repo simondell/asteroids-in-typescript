@@ -1,5 +1,5 @@
 export interface Action {
-	error?: Error
+	// error?: Error
 	payload?: any
 	type: string
 }
@@ -24,6 +24,23 @@ export interface Store {
 	[ key: string ]: any
 }
 
+export function createAction ( type: string ): Function {
+	return function ( payload?: any ): Action {
+		// if(payload instanceof Error) {
+		// 	return {
+		// 		type,
+		// 		error: payload
+		// 	}
+		// }
+		// else {
+		// }
+		return {
+			type,
+			payload
+		}
+	}
+}
+
 
 // naive `composeReducers`/`useReducer`
 export function createStore ( reducerMap: ReducerMap ): [Store, Dispatch] {
@@ -46,4 +63,3 @@ export function createStore ( reducerMap: ReducerMap ): [Store, Dispatch] {
 		})
 	}
 }
-////////////////////////////////////////////////////////////////////////////////
