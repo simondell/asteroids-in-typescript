@@ -90,8 +90,8 @@ console.log(`rocket action`, action)
 		case rocketActions.ROTATE: {
 			const { payload: direction } = action
 			const angularVelocity = direction === Directions.LEFT
-				? + 2
-				: - 2
+				? - 2
+				: + 2
 
 			return {
 				...state,
