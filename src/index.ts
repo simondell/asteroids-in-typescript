@@ -117,12 +117,13 @@ enum Directions {
 }
 
 interface Controls {
-	direction: typeof Directions
+	direction: Directions
 }
 
 enum ControlsActions {
 	SET_DIRECTION = 'CONTROLS/SET_DIRECTION'
 }
+
 const setDirection = createAction(ControlsActions.SET_DIRECTION)
 
 const defaultControls = {
@@ -152,10 +153,53 @@ function getDirection (store: Store) {
 }
 ////////////////////////////////////////////////////////////////////////////////
 
+// settings ////////////////////////////////////////////////////////////////////
+enum Speeds {
+	Still,
+	Slow,
+	Fast,
+}
+
+interface Settings {
+	speed: Speeds
+}
+
+enum SettingsActions {
+	Speed = 'DEV/SPEED',
+	Stop = 'DEV/STOP'
+}
+
+const setSpeed = createAction(SettingsActions.Speed)
+const stopAnimation = createAction(SettingsActions.Stop)
+
+const devDefaults = {
+	speed: Speeds.Fast,
+}
+
+function settings (
+	state = devDefaults,
+	action: Action
+): Settings {
+	switch( action.type ) {
+		case SettingsActions.Stop:
+			return {
+				speed: Speeds.Still
+			}
+		default:
+			return state
+	}
+}
+
+function getSpeed (store: Store) {
+	return store.settings.speed
+}
+////////////////////////////////////////////////////////////////////////////////
+
 // store ///////////////////////////////////////////////////////////////////////
 const [store, dispatch] = createStore({
 	controls,
-	rocket
+	rocket,
+	settings,
 })
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -170,7 +214,6 @@ enum KEYS {
 
 function onKeyDown (event: KeyboardEvent): void {
 console.log('event.keyCode', event.keyCode)
-	event.preventDefault()
 	const direction = getDirection(store)
 	switch( event.keyCode ) {
 		case KEYS.LEFT:
@@ -187,7 +230,6 @@ console.log('event.keyCode', event.keyCode)
 }
 
 function onKeyUp (event: KeyboardEvent): void {
-console.log('event.keyCode', event.keyCode)
 	event.preventDefault()
 
 	switch( event.keyCode ) {
@@ -201,24 +243,20 @@ console.log('event.keyCode', event.keyCode)
 document.addEventListener( 'keydown', onKeyDown )
 document.addEventListener( 'keyup', onKeyUp )
 
+// dev controls ///////////////////////////////////////////////////////////
+const stop = document.getElementById( 'stop' ) as HTMLButtonElement
+stop.addEventListener('click', event => {
+	event.preventDefault()
+	dispatch(stopAnimation())
+})
 
-// hacky button ////////////////////////////////////////////////////////////////
-let play = false
-const pausePlay = document.getElementById( 'play-pause' ) as HTMLButtonElement
-pausePlay.type = 'button'
-pausePlay.textContent = 'Play'
-pausePlay.addEventListener('click', event => {
-	if(play) {
-		pausePlay.textContent = 'Play'
-		play = false
-	}
-	else {
-		pausePlay.textContent = 'Pause'
-		play = true
-		draw()
-	}
+const speeds = document.getElementById('speeds') as HTMLFieldSetElement
+speeds.addEventListener('click', event => {
+	const speed = (speeds.querySelector('[type="radio"]:checked') as HTMLInputElement).value
+	dispatch(setSpeed(speed))
 })
 ////////////////////////////////////////////////////////////////////////////////
+
 
 // game loop ///////////////////////////////////////////////////////////////////
 function draw (): void {
@@ -232,9 +270,17 @@ function draw (): void {
 	renderBackground( context)
 	renderRocket( context, rocket )
 
-	if(play) {
-		requestAnimationFrame(draw)
-		// setTimeout(draw, 700)
+	const speed = getSpeed(store)
+
+	switch( speed ) {
+		case Speeds.Fast:
+			requestAnimationFrame(draw)
+			break
+		case Speeds.Slow:
+			setTimeout(draw, 700)
+			break
+		default:
+			return
 	}
 }
 
