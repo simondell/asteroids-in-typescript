@@ -1,5 +1,4 @@
 export interface Action {
-	// error?: Error
 	payload?: any
 	type: string
 }
@@ -26,14 +25,6 @@ export interface Store {
 
 export function createAction ( type: string ): Function {
 	return function ( payload?: any ): Action {
-		// if(payload instanceof Error) {
-		// 	return {
-		// 		type,
-		// 		error: payload
-		// 	}
-		// }
-		// else {
-		// }
 		return {
 			type,
 			payload
@@ -43,7 +34,7 @@ export function createAction ( type: string ): Function {
 
 // naive `composeReducers`/`useReducer`
 export function createStore ( reducerMap: ReducerMap ): [Store, Dispatch] {
-	const createAction: Action = { type: 'CREATE' }
+	const init: Action = { type: 'STORE/INITIALISE' }
 	const sliceNames = Object.keys(reducerMap)
 	const store = sliceNames.reduce(getDefaultState, {} as Store)
 
@@ -52,7 +43,7 @@ export function createStore ( reducerMap: ReducerMap ): [Store, Dispatch] {
 	function getDefaultState (store: Object, sliceName: string): Object {
 		return {
 			...store,
-			[sliceName]: reducerMap[sliceName](undefined, createAction)
+			[sliceName]: reducerMap[sliceName](undefined, init)
 		}
 	}
 
@@ -63,4 +54,14 @@ export function createStore ( reducerMap: ReducerMap ): [Store, Dispatch] {
 			store[sliceName] = reducer(slice, action)
 		})
 	}
+
+	// function createAction ( type: string ): Function {
+	// 	return function ( payload?: any ): void {
+	// 		const action = {
+	// 			type,
+	// 			payload
+	// 		}
+
+	// 		dispatch(action)
+	// }
 }
