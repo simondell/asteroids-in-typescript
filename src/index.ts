@@ -77,40 +77,37 @@ const defaultRocket = {
 }
 
 enum rocketActions {
-	ROTATE_LEFT = 'ROCKET/ROTATE_LEFT',
-	ROTATE_RIGHT = 'ROCKET/ROTATE_RIGHT',
+	ROTATE = 'ROCKET/ROTATE',
 }
 
-const rotateLeft = { type: rocketActions.ROTATE_LEFT }
-const rotateRight = { type: rocketActions.ROTATE_RIGHT }
+const turnRocket = createAction(rocketActions.ROTATE)
 
 function rocket (
 	state = defaultRocket,
 	action: Action
 ){
+console.log(`rocket action`, action)
 	switch(action.type) {
-		case rocketActions.ROTATE_LEFT:
+		case rocketActions.ROTATE: {
+			const { payload: direction } = action
+			const angularVelocity = direction === Directions.LEFT
+				? + 2
+				: - 2
+
 			return {
 				...state,
-				angle: state.angle - 2
+				angle: state.angle + angularVelocity
 			}
-		case rocketActions.ROTATE_RIGHT:
-			return {
-				...state,
-				angle: state.angle + 2
-			}
+		}
+
 		default:
 			return state
 	}
 }
 
-function getRocket (state: Store): Rocket {
-	return state.rocket
+function getRocket (store: Store): Rocket {
+	return store.rocket
 }
-////////////////////////////////////////////////////////////////////////////////
-
-// store ///////////////////////////////////////////////////////////////////////
-const [store, dispatch] = createStore({ rocket })
 ////////////////////////////////////////////////////////////////////////////////
 
 // controls ////////////////////////////////////////////////////////////////////
@@ -118,6 +115,10 @@ enum Directions {
 	NEUTRAL,
 	LEFT,
 	RIGHT,
+}
+
+interface Controls {
+	direction: typeof Directions
 }
 
 enum ControlsActions {
@@ -136,18 +137,31 @@ function controls (
 	action: Action
 ){
 	switch(action.type) {
-		case ControlsActions.SET_DIRECTION:
+		case ControlsActions.SET_DIRECTION: {
+			const { payload: direction } = action
 			return {
 				...state,
-				direction: action.payload
+				direction
 			}
-		default:
-			return state
+		}
 	}
+	return state
 }
 
+function getDirection (store: Store) {
+	return store.controls.direction
+}
+////////////////////////////////////////////////////////////////////////////////
 
-enum CONTROLS {
+// store ///////////////////////////////////////////////////////////////////////
+const [store, dispatch] = createStore({
+	controls,
+	rocket
+})
+////////////////////////////////////////////////////////////////////////////////
+
+// "hardware" //////////////////////////////////////////////////////////////////
+enum KEYS {
 	LEFT = 37,
 	// POWER = 81,
 	RIGHT = 39,
@@ -156,39 +170,75 @@ enum CONTROLS {
 }
 
 function onKeyDown (event: KeyboardEvent): void {
+console.log('event.keyCode', event.keyCode)
 	event.preventDefault()
-
+	const direction = getDirection(store)
 	switch( event.keyCode ) {
-		case CONTROLS.LEFT:
-			dispatch( setDirection( Directions.LEFT ) )
+		case KEYS.LEFT:
+			if(direction === Directions.NEUTRAL) {
+				dispatch( setDirection( Directions.LEFT ) )
+			}
 			break;
-		case CONTROLS.RIGHT:
-			dispatch( setDirection( Directions.RIGHT ) )
+		case KEYS.RIGHT:
+			if(direction === Directions.NEUTRAL) {
+				dispatch( setDirection( Directions.RIGHT ) )
+			}
 			break;
 	}
 }
 
 function onKeyUp (event: KeyboardEvent): void {
+console.log('event.keyCode', event.keyCode)
 	event.preventDefault()
 
 	switch( event.keyCode ) {
-		case CONTROLS.LEFT:
-		case CONTROLS.RIGHT:
+		case KEYS.LEFT:
+		case KEYS.RIGHT:
 			dispatch( setDirection( Directions.NEUTRAL ) )
 			break;
 	}
 }
 
-document.addEventListener('keydown', onKeyDown)
-document.addEventListener('keydown', onKeyUp)
+document.addEventListener( 'keydown', onKeyDown )
+document.addEventListener( 'keyup', onKeyUp )
+
+
+// hacky button ////////////////////////////////////////////////////////////////
+let play = false
+const pausePlay = document.createElement( 'button' )
+pausePlay.type = 'button'
+pausePlay.textContent = 'Play'
+pausePlay.addEventListener('click', event => {
+	if(play) {
+		pausePlay.textContent = 'Play'
+		play = false
+	}
+	else {
+		pausePlay.textContent = 'Pause'
+		play = true
+		draw()
+	}
+})
+
+document.body.appendChild( pausePlay )
 ////////////////////////////////////////////////////////////////////////////////
 
 // game loop ///////////////////////////////////////////////////////////////////
 function draw (): void {
-	renderBackground( context)
-	renderRocket( context, getRocket(store) )
+	const direction = getDirection(store)
+	const rocket = getRocket(store)
 
-	requestAnimationFrame(draw)
+	if(!(direction === Directions.NEUTRAL)) {
+		dispatch( turnRocket(direction) )
+	}
+
+	renderBackground( context)
+	renderRocket( context, rocket )
+
+	if(play) {
+		requestAnimationFrame(draw)
+		// setTimeout(draw, 700)
+	}
 }
 
 draw()

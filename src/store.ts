@@ -41,7 +41,6 @@ export function createAction ( type: string ): Function {
 	}
 }
 
-
 // naive `composeReducers`/`useReducer`
 export function createStore ( reducerMap: ReducerMap ): [Store, Dispatch] {
 	const createAction: Action = { type: 'CREATE' }
@@ -59,7 +58,9 @@ export function createStore ( reducerMap: ReducerMap ): [Store, Dispatch] {
 
 	function dispatch(action: Action): void {
 		sliceNames.forEach((sliceName: string) => {
-			store[sliceName] = reducerMap[sliceName](store[sliceName], action)
+			const slice = store[sliceName]
+			const reducer = reducerMap[sliceName]
+			store[sliceName] = reducer(slice, action)
 		})
 	}
 }
