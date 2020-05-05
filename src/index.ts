@@ -6,13 +6,12 @@ import {
 	Store,
 } from './store.js'
 
-const canvas = document.createElement( 'canvas' )
+// const canvas = document.createElement( 'canvas' )
+const canvas = (document.getElementById('screen')) as HTMLCanvasElement
 const context = canvas.getContext( '2d' )
 
 canvas.width = 800
 canvas.height = 600
-
-document.body.appendChild( canvas )
 
 // interface RenderFunction {
 // 	(c: CanvasRenderingContext2D ): void
@@ -205,7 +204,7 @@ document.addEventListener( 'keyup', onKeyUp )
 
 // hacky button ////////////////////////////////////////////////////////////////
 let play = false
-const pausePlay = document.createElement( 'button' )
+const pausePlay = document.getElementById( 'play-pause' ) as HTMLButtonElement
 pausePlay.type = 'button'
 pausePlay.textContent = 'Play'
 pausePlay.addEventListener('click', event => {
@@ -219,8 +218,6 @@ pausePlay.addEventListener('click', event => {
 		draw()
 	}
 })
-
-document.body.appendChild( pausePlay )
 ////////////////////////////////////////////////////////////////////////////////
 
 // game loop ///////////////////////////////////////////////////////////////////
