@@ -173,7 +173,7 @@ const setSpeed = createAction(SettingsActions.Speed)
 const stopAnimation = createAction(SettingsActions.Stop)
 
 const devDefaults = {
-	speed: Speeds.Fast,
+	speed: Speeds.Slow,
 }
 
 function settings (
@@ -257,14 +257,10 @@ stop.addEventListener('click', event => {
 const radios = document.querySelectorAll('[name="speed"]')
 Array.prototype.forEach.call(radios, (radio: HTMLInputElement) => {
 	radio.addEventListener('click', event => {
-
-		const speed = (event.target as HTMLInputElement).value
-	console.log(`speed`, speed)
-	console.log(event)
-		dispatch(setSpeed(speed))
 		event.preventDefault()
+		const speed = (event.target as HTMLInputElement).value
+		dispatch(setSpeed(speed))
 	})
-
 })
 
 
@@ -282,6 +278,13 @@ notify(updateSpeedView)
 
 
 // game loop ///////////////////////////////////////////////////////////////////
+// function restartDraw (store: Store): void {
+// 	const speed = getSpeed(store)
+// 	if(!(speed === Speeds.Still)) {
+// 		draw()
+// 	}
+// }
+
 function draw (): void {
 	const direction = getDirection(store)
 	const rocket = getRocket(store)
@@ -302,8 +305,11 @@ function draw (): void {
 		case Speeds.Slow:
 			setTimeout(draw, 700)
 			break
-		default:
+		default: {
+			// notify(restartDraw)
+			console.log('stop!!!')
 			return
+		}
 	}
 }
 

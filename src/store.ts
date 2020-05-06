@@ -70,6 +70,8 @@ export function createStore (
 	function notify (listener: Function) {
 		const length = subscriptions.push(listener)
 
+		listener(store)
+
 		return function () {
 			subscriptions = [
 				...subscriptions.slice(0, length - 1),
