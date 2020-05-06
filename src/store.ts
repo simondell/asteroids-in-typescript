@@ -7,6 +7,14 @@ export interface Dispatch {
 	( a: Action ): void
 }
 
+export interface Notify {
+	( f: Function ): ClearNotification
+}
+
+export interface ClearNotification {
+	(): void
+}
+
 export interface Reducer<T> {
 	( state: T, action: Action ): T
 }
@@ -33,12 +41,14 @@ export function createAction ( type: string ): Function {
 }
 
 // naive `composeReducers`/`useReducer`
-export function createStore ( reducerMap: ReducerMap ): [Store, Dispatch] {
+export function createStore (
+	reducerMap: ReducerMap
+): [Store, Dispatch, Notify] {
 	const init: Action = { type: 'STORE/INITIALISE' }
 	const sliceNames = Object.keys(reducerMap)
-	const store = sliceNames.reduce(getDefaultState, {} as Store)
 
-	return [store, dispatch]
+	const store = sliceNames.reduce(getDefaultState, {} as Store)
+	let subscriptions: Function[] = []
 
 	function getDefaultState (store: Object, sliceName: string): Object {
 		return {
@@ -53,6 +63,19 @@ export function createStore ( reducerMap: ReducerMap ): [Store, Dispatch] {
 			const reducer = reducerMap[sliceName]
 			store[sliceName] = reducer(slice, action)
 		})
+
+		subscriptions.forEach(subscripton => { subscripton(store) })
+	}
+
+	function notify (listener: Function) {
+		const length = subscriptions.push(listener)
+
+		return function () {
+			subscriptions = [
+				...subscriptions.slice(0, length - 1),
+				...subscriptions.slice(length)
+			]
+		}
 	}
 
 	// function createAction ( type: string ): Function {
@@ -64,4 +87,6 @@ export function createStore ( reducerMap: ReducerMap ): [Store, Dispatch] {
 
 	// 		dispatch(action)
 	// }
+
+	return [store, dispatch, notify]
 }

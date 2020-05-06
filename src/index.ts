@@ -185,6 +185,10 @@ function settings (
 			return {
 				speed: Speeds.Still
 			}
+		case SettingsActions.Speed:
+			return {
+				speed: action.payload
+			}
 		default:
 			return state
 	}
@@ -196,7 +200,7 @@ function getSpeed (store: Store) {
 ////////////////////////////////////////////////////////////////////////////////
 
 // store ///////////////////////////////////////////////////////////////////////
-const [store, dispatch] = createStore({
+const [store, dispatch, notify] = createStore({
 	controls,
 	rocket,
 	settings,
@@ -243,18 +247,37 @@ function onKeyUp (event: KeyboardEvent): void {
 document.addEventListener( 'keydown', onKeyDown )
 document.addEventListener( 'keyup', onKeyUp )
 
-// dev controls ///////////////////////////////////////////////////////////
+// dev controls ////////////////////////////////////////////////////////////////
 const stop = document.getElementById( 'stop' ) as HTMLButtonElement
 stop.addEventListener('click', event => {
 	event.preventDefault()
 	dispatch(stopAnimation())
 })
 
-const speeds = document.getElementById('speeds') as HTMLFieldSetElement
-speeds.addEventListener('click', event => {
-	const speed = (speeds.querySelector('[type="radio"]:checked') as HTMLInputElement).value
-	dispatch(setSpeed(speed))
+const radios = document.querySelectorAll('[name="speed"]')
+Array.prototype.forEach.call(radios, (radio: HTMLInputElement) => {
+	radio.addEventListener('click', event => {
+
+		const speed = (event.target as HTMLInputElement).value
+	console.log(`speed`, speed)
+	console.log(event)
+		dispatch(setSpeed(speed))
+		event.preventDefault()
+	})
+
 })
+
+
+function updateSpeedView (store: Store) {
+	const speed = getSpeed(store)
+	const view = document.querySelector(`[value="${speed}"]`) as HTMLInputElement
+console.log(`speed`, speed)
+console.log(`view`, view)
+	view.checked = true
+}
+
+notify(updateSpeedView)
+
 ////////////////////////////////////////////////////////////////////////////////
 
 
