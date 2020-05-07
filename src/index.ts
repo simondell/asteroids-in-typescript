@@ -85,7 +85,6 @@ function rocket (
 	state = defaultRocket,
 	action: Action
 ){
-console.log(`rocket action`, action)
 	switch(action.type) {
 		case rocketActions.ROTATE: {
 			const { payload: direction } = action
@@ -147,21 +146,13 @@ function controls (
 	}
 	return state
 }
-
-function getDirection (store: Store) {
-	return store.controls.direction
-}
 ////////////////////////////////////////////////////////////////////////////////
 
 // settings ////////////////////////////////////////////////////////////////////
 enum Speeds {
-	Still,
-	Slow,
-	Fast,
-}
-
-interface Settings {
-	speed: Speeds
+	Still, // 0
+	Slow,  // 1
+	Fast,  // 2
 }
 
 enum SettingsActions {
@@ -169,11 +160,16 @@ enum SettingsActions {
 	Stop = 'DEV/STOP'
 }
 
+// const setSpeed = createAction<SettingsActions.Speed, Speeds>(SettingsActions.Speed)
 const setSpeed = createAction(SettingsActions.Speed)
 const stopAnimation = createAction(SettingsActions.Stop)
 
-const devDefaults = {
-	speed: Speeds.Slow,
+interface Settings {
+	speed: Speeds
+}
+
+const devDefaults: Settings = {
+	speed: Speeds.Still,
 }
 
 function settings (
@@ -193,13 +189,14 @@ function settings (
 			return state
 	}
 }
-
-function getSpeed (store: Store) {
-	return store.settings.speed
-}
 ////////////////////////////////////////////////////////////////////////////////
 
 // store ///////////////////////////////////////////////////////////////////////
+// interface GameStore {
+// 	controls: Controls
+// 	rocket: Rocket
+// 	settings: Settings
+// }
 const [store, dispatch, notify] = createStore({
 	controls,
 	rocket,
@@ -218,7 +215,8 @@ enum KEYS {
 
 function onKeyDown (event: KeyboardEvent): void {
 console.log('event.keyCode', event.keyCode)
-	const direction = getDirection(store)
+	const { direction } = store.controls
+
 	switch( event.keyCode ) {
 		case KEYS.LEFT:
 			if(direction === Directions.NEUTRAL) {
@@ -251,25 +249,29 @@ document.addEventListener( 'keyup', onKeyUp )
 const stop = document.getElementById( 'stop' ) as HTMLButtonElement
 stop.addEventListener('click', event => {
 	event.preventDefault()
-	dispatch(stopAnimation())
+	dispatch( stopAnimation() )
 })
 
 const radios = document.querySelectorAll('[name="speed"]')
 Array.prototype.forEach.call(radios, (radio: HTMLInputElement) => {
 	radio.addEventListener('click', event => {
 		event.preventDefault()
-		const speed = (event.target as HTMLInputElement).value
-		dispatch(setSpeed(speed))
+		const { value } = (event.target as HTMLInputElement)
+		const speed = parseInt(value, 10)
+		dispatch( setSpeed( speed ) )
 	})
 })
 
-
 function updateSpeedView (store: Store) {
-	const speed = getSpeed(store)
-	const view = document.querySelector(`[value="${speed}"]`) as HTMLInputElement
-console.log(`speed`, speed)
-console.log(`view`, view)
-	view.checked = true
+	const { speed } = store.settings
+	const radios = document.querySelectorAll(`[type="radio"]`)
+
+	Array.prototype.forEach.call(radios, (radio: HTMLInputElement) => {
+		radio.checked = false
+
+		const isChecked = parseInt(radio.value, 10) === speed
+		radio.checked = isChecked
+	})
 }
 
 notify(updateSpeedView)
@@ -278,16 +280,20 @@ notify(updateSpeedView)
 
 
 // game loop ///////////////////////////////////////////////////////////////////
-// function restartDraw (store: Store): void {
-// 	const speed = getSpeed(store)
-// 	if(!(speed === Speeds.Still)) {
-// 		draw()
-// 	}
-// }
+let clearRestartNotifier: Function | null
+function restartDraw (store: Store): void {
+	if(!(store.settings.speed === Speeds.Still)) {
+		draw(true)
+		if(clearRestartNotifier) {
+			clearRestartNotifier()
+			clearRestartNotifier = null
+		}
+	}
+}
 
-function draw (): void {
-	const direction = getDirection(store)
-	const rocket = getRocket(store)
+function draw (shouldLog?: boolean): void {
+	const { direction } = store.controls
+	const { rocket } = store
 
 	if(!(direction === Directions.NEUTRAL)) {
 		dispatch( turnRocket(direction) )
@@ -296,17 +302,17 @@ function draw (): void {
 	renderBackground( context)
 	renderRocket( context, rocket )
 
-	const speed = getSpeed(store)
+	shouldLog && console.log(`store`, store)
 
-	switch( speed ) {
+	switch( store.settings.speed ) {
 		case Speeds.Fast:
-			requestAnimationFrame(draw)
+			requestAnimationFrame(() => draw(false))
 			break
 		case Speeds.Slow:
 			setTimeout(draw, 700)
 			break
 		default: {
-			// notify(restartDraw)
+			clearRestartNotifier = notify(restartDraw)
 			console.log('stop!!!')
 			return
 		}
