@@ -219,14 +219,10 @@ console.log('event.keyCode', event.keyCode)
 
 	switch( event.keyCode ) {
 		case KEYS.LEFT:
-			if(direction === Directions.NEUTRAL) {
-				dispatch( setDirection( Directions.LEFT ) )
-			}
+			dispatch( setDirection( Directions.LEFT ) )
 			break;
 		case KEYS.RIGHT:
-			if(direction === Directions.NEUTRAL) {
-				dispatch( setDirection( Directions.RIGHT ) )
-			}
+			dispatch( setDirection( Directions.RIGHT ) )
 			break;
 	}
 }
