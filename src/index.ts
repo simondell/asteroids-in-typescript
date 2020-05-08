@@ -248,17 +248,27 @@ stop.addEventListener('click', event => {
 	dispatch( stopAnimation() )
 })
 
-const radios = document.querySelectorAll('[name="speed"]')
-Array.prototype.forEach.call(radios, (radio: HTMLInputElement) => {
-	radio.addEventListener('click', event => {
+const radios = document.querySelector('#speeds')
+radios.addEventListener('click', event => {
 		event.preventDefault()
+
+		let radio: HTMLElement
+		// if it's a label
+		if( 'control' in event.target ) {
+			radio = (event.target as HTMLLabelElement).control
+		}
+		// if it's an input
+		else if( 'value' in event.target ) {
+			radio = event.target
+		}
+
 		const { value } = (event.target as HTMLInputElement)
 		const speed = parseInt(value, 10)
 		dispatch( setSpeed( speed ) )
-	})
 })
 
 function updateSpeedView (store: Store) {
+console.log(`updateSpeedView`, store)
 	const { speed } = store.settings
 	const radios = document.querySelectorAll(`[type="radio"]`)
 
@@ -268,9 +278,10 @@ function updateSpeedView (store: Store) {
 		const isChecked = parseInt(radio.value, 10) === speed
 		radio.checked = isChecked
 	})
+console.log(`/updateSpeedView`)
 }
 
-notify(updateSpeedView)
+notify(updateSpeedView, false)
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -278,6 +289,7 @@ notify(updateSpeedView)
 // game loop ///////////////////////////////////////////////////////////////////
 let clearRestartNotifier: Function | null
 function restartDraw (store: Store): void {
+console.log(`redraw`, store)
 	if(!(store.settings.speed === Speeds.Still)) {
 		draw(true)
 		if(clearRestartNotifier) {
@@ -298,7 +310,7 @@ function draw (shouldLog?: boolean): void {
 	renderBackground( context)
 	renderRocket( context, rocket )
 
-	shouldLog && console.log(`store`, store)
+	shouldLog && console.log(`draw() - store`, store)
 
 	switch( store.settings.speed ) {
 		case Speeds.Fast:
@@ -308,7 +320,7 @@ function draw (shouldLog?: boolean): void {
 			setTimeout(draw, 700)
 			break
 		default: {
-			clearRestartNotifier = notify(restartDraw)
+			clearRestartNotifier = notify(restartDraw, false)
 			console.log('stop!!!')
 			return
 		}

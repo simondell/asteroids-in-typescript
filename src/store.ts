@@ -8,7 +8,7 @@ export interface Dispatch {
 }
 
 export interface Notify {
-	( f: Function ): ClearNotification
+	( f: Function, b?: boolean ): ClearNotification
 }
 
 export interface ClearNotification {
@@ -58,6 +58,7 @@ export function createStore (
 	}
 
 	function dispatch(action: Action): void {
+console.log(`dispatch`, action)
 		sliceNames.forEach((sliceName: string) => {
 			const slice = store[sliceName]
 			const reducer = reducerMap[sliceName]
@@ -67,10 +68,12 @@ export function createStore (
 		subscriptions.forEach(subscripton => { subscripton(store) })
 	}
 
-	function notify (listener: Function) {
+	function notify (listener: Function, shouldInvokeImmediate = true) {
 		const length = subscriptions.push(listener)
 
-		listener(store)
+		if( shouldInvokeImmediate ) {
+			listener(store)
+		}
 
 		return function () {
 			subscriptions = [
