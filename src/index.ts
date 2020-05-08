@@ -287,7 +287,6 @@ notify(updateSpeedView, false)
 // game loop ///////////////////////////////////////////////////////////////////
 let clearRestartNotifier: Function | null
 function restartDraw (store: Store): void {
-console.log(`redraw`, store)
 	if(!(store.settings.speed === Speeds.Still)) {
 		draw(true)
 		if(clearRestartNotifier) {
@@ -297,7 +296,7 @@ console.log(`redraw`, store)
 	}
 }
 
-function draw (shouldLog?: boolean): void {
+function animate (store: Store) {
 	const { direction } = store.controls
 	const { rocket } = store
 
@@ -305,10 +304,14 @@ function draw (shouldLog?: boolean): void {
 		dispatch( turnRocket(direction) )
 	}
 
-	renderBackground( context)
+	renderBackground( context )
 	renderRocket( context, rocket )
+}
 
+function draw (shouldLog?: boolean): void {
 	shouldLog && console.log(`draw() - store`, store)
+
+	animate( store )
 
 	switch( store.settings.speed ) {
 		case Speeds.Fast:
