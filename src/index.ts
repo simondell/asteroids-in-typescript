@@ -250,7 +250,7 @@ stop.addEventListener('click', event => {
 
 const radios = document.querySelector('#speeds')
 radios.addEventListener('click', event => {
-		event.preventDefault()
+		// event.preventDefault()
 
 		let radio: HTMLElement
 		// if it's a label
@@ -268,7 +268,6 @@ radios.addEventListener('click', event => {
 })
 
 function updateSpeedView (store: Store) {
-console.log(`updateSpeedView`, store)
 	const { speed } = store.settings
 	const radios = document.querySelectorAll(`[type="radio"]`)
 
@@ -278,7 +277,6 @@ console.log(`updateSpeedView`, store)
 		const isChecked = parseInt(radio.value, 10) === speed
 		radio.checked = isChecked
 	})
-console.log(`/updateSpeedView`)
 }
 
 notify(updateSpeedView, false)
@@ -317,7 +315,7 @@ function draw (shouldLog?: boolean): void {
 			requestAnimationFrame(() => draw(false))
 			break
 		case Speeds.Slow:
-			setTimeout(draw, 700)
+			setTimeout(draw, 333)
 			break
 		default: {
 			clearRestartNotifier = notify(restartDraw, false)
