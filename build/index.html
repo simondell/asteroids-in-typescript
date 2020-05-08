@@ -5,14 +5,19 @@
 	<title>Asteroids</title>
 
 	<style type="text/css">
+		:root {
+			--game-height: 600px;
+			--game-width: 800px;
+		}
+
 		body {
 			display: flex;
 			align-items: flex-start;
 		}
 
 		main {
-			height: 600px;
-			width: 800px;
+			height: var(--game-height);
+			width: var(--game-width);
 		}
 
 		canvas {
@@ -103,7 +108,8 @@
 		</fieldset>
 	</aside>
 
-	<script src="./store.js" type="module"></script>
 	<script src="./index.js" type="module"></script>
+	<script src="./settings.js" type="module"></script>
+	<script src="./store.js" type="module"></script>
 </body>
 </html>
