@@ -5,26 +5,22 @@ import {
 import {
 	Action,
 	createAction,
-	// Dispatch,
 	Store,
 } from './store.js'
 
-interface Vector2 {
-	x: number
-	y: number
-}
+import {
+	degreesToRadians,
+	Vector2,
+} from './libs/vectors.js'
 
-function degreesToRadians (angle: number): number {
-	return angle * Math.PI / 180
-}
-
-// rocket //////////////////////////////////////////////////////////////////////
+// actions /////////////////////////////////////////////////////////////////////
 enum rocketActions {
 	ROTATE = 'ROCKET/ROTATE',
 }
 
 export const turnRocket = createAction(rocketActions.ROTATE)
 
+// reducer etc /////////////////////////////////////////////////////////////////
 export interface Rocket {
 	angle: number
 	position: Vector2
@@ -64,6 +60,7 @@ export function rocket (
 	}
 }
 
+// render //////////////////////////////////////////////////////////////////////
 export function renderRocket (
 	context: CanvasRenderingContext2D,
 	rocket: Rocket
@@ -89,4 +86,3 @@ export function renderRocket (
 
 	context.restore()
 }
-////////////////////////////////////////////////////////////////////////////////

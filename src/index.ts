@@ -1,4 +1,8 @@
 import {
+	asteroids,
+} from './asteroids.js'
+
+import {
 	controls,
 	Directions,
 	setDirection
@@ -25,7 +29,8 @@ import {
 } from './settings.js'
 
 import {
-	animate
+	animate,
+	initialise,
 } from './animate.js'
 
 // const canvas = document.createElement( 'canvas' )
@@ -52,6 +57,7 @@ canvas.width = parseInt(canvasWidth, 10)
 // 	settings: Settings
 // }
 const [store, dispatch, notify] = createStore({
+	asteroids,
 	controls,
 	rocket,
 	settings,
@@ -149,6 +155,10 @@ function restartDraw (store: Store): void {
 		}
 	}
 }
+
+dispatch( initialise() )
+
+console.log(`initialised`, store)
 
 function draw (shouldLog?: boolean): void {
 	shouldLog && console.log(`draw() - store`, store)

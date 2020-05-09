@@ -3,6 +3,11 @@ export interface Action {
 	type: string
 }
 
+export interface ActionT {
+	payload?: any
+	type: Enumerator
+}
+
 export interface Dispatch {
 	( a: Action ): void
 }
