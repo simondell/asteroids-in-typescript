@@ -3,6 +3,13 @@ export interface Vector2 {
 	y: number
 }
 
+export function add ( v1: Vector2, v2: Vector2 ) {
+	return {
+		x: v1.x + v2.x,
+		y: v1.y + v2.y,
+	}
+}
+
 export function degreesToRadians (angle: number): number {
 	return angle * Math.PI / 180
 }

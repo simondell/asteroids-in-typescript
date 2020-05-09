@@ -59,6 +59,22 @@ function randomAsteroid (): Asteroid {
 
 function asteroid (state: Asteroid = randomAsteroid(), action: Action) {
 	switch (action.type) {
+		case GameActions.Tick: {
+			const position = Vectors.add(state.position, state.velocity)
+			return {
+				...state,
+				position
+			}
+
+			// this.pos.plusEq(this.vel);
+
+			// if(this.pos.x+this.radius < 0) this.pos.x = canvas.width+this.radius;
+			// else if (this.pos.x-this.radius > canvas.width) this.pos.x = -this.radius;
+
+			// if(this.pos.y+this.radius < 0) this.pos.y = canvas.height+this.radius;
+			// else if (this.pos.y-this.radius > canvas.height) this.pos.y = -this.radius;
+		}
+
 		default:
 			return state
 	}
@@ -101,6 +117,16 @@ export function asteroids (state: Asteroid[] = [], action: Action) {
 			let count = 5
 			while( count-- ) {
 				const rock = asteroid(undefined, action)
+				rocks.push( rock )
+			}
+			return rocks
+		}
+
+		case GameActions.Tick: {
+			const rocks: Asteroid[] = []
+			let count = state.length
+			while( count-- ) {
+				const rock = asteroid(state[count], action)
 				rocks.push( rock )
 			}
 			return rocks

@@ -24,7 +24,7 @@ export interface Settings {
 }
 
 const devDefaults: Settings = {
-	speed: Speeds.Fast,
+	speed: Speeds.Slow,
 }
 
 export function settings (

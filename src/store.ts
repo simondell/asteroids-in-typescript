@@ -63,13 +63,13 @@ export function createStore (
 	}
 
 	function dispatch(action: Action): void {
-console.log(`dispatch`, action)
 		sliceNames.forEach((sliceName: string) => {
 			const slice = store[sliceName]
 			const reducer = reducerMap[sliceName]
 			store[sliceName] = reducer(slice, action)
 		})
 
+console.log(`dispatch`, action, store)
 		subscriptions.forEach(subscripton => { subscripton(store) })
 	}
 

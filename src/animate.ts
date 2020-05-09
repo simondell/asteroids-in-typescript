@@ -42,10 +42,6 @@ export function animate (context: CanvasRenderingContext2D, store: Store, dispat
 		rocket,
 	} = store
 
-	if(!(direction === Directions.NEUTRAL)) {
-		dispatch( turnRocket(direction) )
-	}
-
 	renderBackground( context )
 
 	let rock = asteroids.length
@@ -54,5 +50,11 @@ export function animate (context: CanvasRenderingContext2D, store: Store, dispat
 	}
 
 	renderRocket( context, rocket )
+
+	if(!(direction === Directions.NEUTRAL)) {
+		dispatch( turnRocket(direction) )
+	}
+
+	dispatch( tick() )
 }
 ////////////////////////////////////////////////////////////////////////////////
