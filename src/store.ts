@@ -69,7 +69,7 @@ export function createStore (
 			store[sliceName] = reducer(slice, action)
 		})
 
-console.log(`dispatch`, action, store)
+// console.log(`dispatch`, action, store)
 		subscriptions.forEach(subscripton => { subscripton(store) })
 	}
 
