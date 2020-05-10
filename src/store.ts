@@ -3,34 +3,26 @@ export interface Action {
 	type: string
 }
 
-export interface ActionT {
-	payload?: any
-	type: Enumerator
-}
-
-export interface Dispatch {
-	( a: Action ): void
-}
-
-export interface Notify {
-	( f: Function, b?: boolean ): ClearNotification
-}
-
-export interface ClearNotification {
-	(): void
-}
+// export interface ActionT<U> {
+// 	payload?: any
+// 	type: U
+// }
 
 export interface Reducer<T> {
 	( state: T, action: Action ): T
 }
 
+// export interface Reducer<T, U> {
+// 	( state: T, action: ActionT<U> ): T
+// }
+
 export interface ReducerMap {
 	[ key: string ]: Reducer<any>
 }
 
-export interface Selector<T> {
-	( s: Store ): T
-}
+// export interface Selector<T> {
+// 	( s: Store ): T
+// }
 
 interface Mapable {
 	[ key: string ]: any
@@ -81,12 +73,25 @@ function combineInSeries (...reducers: Reducer<any>[] ): Reducer<any> {
 	}
 }
 
-interface GetState {
+// create the store, get the helpers ///////////////////////////////////////////
+export interface ClearNotification {
+	(): void
+}
+
+export interface Dispatch {
+	( a: Action ): void
+}
+
+export interface GetState {
 	(): Store
 }
 
-interface Listener {
+export interface Listener {
 	(s: Store): void
+}
+
+export interface Notify {
+	( f: Function, b?: boolean ): ClearNotification
 }
 
 export function createStore2 (
@@ -130,6 +135,7 @@ export function createStore2 (
 
 	return [getState, dispatch, notify]
 }
+////////////////////////////////////////////////////////////////////////////////
 
 // naive `composeReducers`/`useReducer`
 export function createStore (
