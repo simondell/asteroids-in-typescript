@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "server": "http-server ./build -p 8080",
+    "server": "serve ./build -l 8080",
     "start": "tsc --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/simondell/asteroids-in-typescript#readme",
   "devDependencies": {
-    "http-server": "^0.12.3",
+    "serve": "^11.3.0",
     "typescript": "^3.8.3"
   }
 }
