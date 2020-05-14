@@ -14,8 +14,10 @@ import {
 
 import {
 	Action,
+	combineInParallel,
 	createAction,
 	createStore,
+	createStore2,
 	Dispatch,
 	Store,
 } from './store.js'
@@ -56,12 +58,19 @@ canvas.width = parseInt(canvasWidth, 10)
 // 	rocket: Rocket
 // 	settings: Settings
 // }
-const [store, dispatch, notify] = createStore({
+// const [store, dispatch, notify] = createStore({
+// 	asteroids,
+// 	controls,
+// 	rocket,
+// 	settings,
+// })
+const rootReducer = combineInParallel({
 	asteroids,
 	controls,
 	rocket,
 	settings,
 })
+const [getState, dispatch, notify] = createStore2(rootReducer)
 ////////////////////////////////////////////////////////////////////////////////
 
 // "hardware" //////////////////////////////////////////////////////////////////
@@ -74,9 +83,6 @@ enum KEYS {
 }
 
 function onKeyDown (event: KeyboardEvent): void {
-console.log('event.keyCode', event.keyCode)
-	const { direction } = store.controls
-
 	switch( event.keyCode ) {
 		case KEYS.LEFT:
 			dispatch( setDirection( Directions.LEFT ) )
@@ -128,7 +134,8 @@ radios.addEventListener('click', event => {
 })
 
 function updateSpeedView (store: Store) {
-	const { speed } = store.settings
+	// const { speed } = store.settings
+	const { settings: { speed } } = getState()
 	const radios = document.querySelectorAll(`[type="radio"]`)
 
 	Array.prototype.forEach.call(radios, (radio: HTMLInputElement) => {
@@ -145,7 +152,7 @@ notify(updateSpeedView, false)
 
 
 // game loop ///////////////////////////////////////////////////////////////////
-let clearRestartNotifier: Function | null
+let clearRestartNotifier: Function | null = null
 function restartDraw (store: Store): void {
 	if(!(store.settings.speed === Speeds.Still)) {
 		draw(true)
@@ -158,11 +165,12 @@ function restartDraw (store: Store): void {
 
 dispatch( initialise() )
 
+const store = getState()
 console.log(`initialised`, store)
 
 function draw (shouldLog?: boolean): void {
+	const store = getState()
 	shouldLog && console.log(`draw() - store`, store)
-
 	animate( context, store, dispatch )
 
 	switch( store.settings.speed ) {
