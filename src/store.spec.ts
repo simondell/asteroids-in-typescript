@@ -1,21 +1,23 @@
 import {
 	Action,
+	combineInParallel,
 	combineInSeries,
+	Mapable,
 } from './store'
 
-function generateOne (state: number, action: Action ) {
+function generateOne (state = 1, action: Action ) {
 	return 1
 }
 
-function addOne (state: number, action: Action ) {
+function addOne (state = 0, action: Action ) {
 	return state + 1
 }
 
-function subtractOne (state: number, action: Action ) {
+function subtractOne (state = 0, action: Action ) {
 	return state - 1
 }
 
-function addOrSubtractOne (state: number, action: Action ) {
+function addOrSubtractOne (state = 0, action: Action ) {
 	switch (action.type) {
 		case 'TEST/ADD':
 			return state + 1
@@ -24,6 +26,14 @@ function addOrSubtractOne (state: number, action: Action ) {
 		default:
 			return state
 	}
+}
+
+function toggleFlag (state = false, action: Action ) {
+	if(action.type === 'TEST/TOGGLE') {
+		return !state
+	}
+
+	return state
 }
 
 const mockAction = { type: 'TEST/MOCK_ACTION' }
@@ -83,4 +93,59 @@ describe('combineInSeries', () => {
 	})
 })
 
+describe('combineInParallel', () => {
+	describe('returned reducer calls all the slice reducers', () => {
+		const reducer1Spy = jest.fn()
+		const reducer2Spy = jest.fn()
+		const action = { type: 'TEST/PARALLEL' }
 
+		beforeAll(() => {
+			const hopefullyInParallel = combineInParallel({
+				slice1: reducer1Spy,
+				slice2: reducer2Spy,
+			})
+
+			hopefullyInParallel(undefined, action)
+		})
+
+		test('once', () => {
+			expect(reducer1Spy).toHaveBeenCalledTimes(1)
+			expect(reducer2Spy).toHaveBeenCalledTimes(1)
+		})
+
+		test('with their state and action', () => {
+			expect(reducer1Spy).toHaveBeenCalledWith(undefined, action)
+			expect(reducer2Spy).toHaveBeenCalledWith(undefined, action)
+		})
+	})
+
+	test('returned reducer returns updated state', () => {
+		const hopefullyInParallel = combineInParallel({
+			someFlag: toggleFlag,
+			someOtherFlag: toggleFlag,
+			someCounter: addOrSubtractOne,
+		})
+
+		const initialState: Mapable = {
+			someFlag: true,
+			someOtherFlag: true,
+			someCounter: 41,
+		}
+
+		let nextState
+
+		nextState = hopefullyInParallel(initialState, { type: 'TEST/TOGGLE' })
+		expect(nextState).toEqual({
+			someFlag: false,
+			someOtherFlag: false,
+			someCounter: 41,
+		})
+
+		nextState = hopefullyInParallel(nextState, { type: 'TEST/ADD' })
+		expect(nextState).toEqual({
+			someFlag: false,
+			someOtherFlag: false,
+			someCounter: 42,
+		})
+	})
+})

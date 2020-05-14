@@ -9,7 +9,7 @@ export interface Action {
 // }
 
 export interface Reducer<T> {
-	( state: T, action: Action ): T
+	( state: T | undefined, action: Action ): T
 }
 
 // export interface Reducer<T, U> {
@@ -24,7 +24,7 @@ export interface ReducerMap {
 // 	( s: Store ): T
 // }
 
-interface Mapable {
+export interface Mapable {
 	[ key: string ]: any
 }
 
@@ -40,10 +40,8 @@ export function createAction ( type: string ): Function {
 	}
 }
 
-function combineInParallel (
-	reducerMap: ReducerMap
-): Reducer<ReducerMap> {
-	return function reduceInParallel ( state: Mapable, action: Action ): ReducerMap {
+export function combineInParallel ( reducerMap: ReducerMap ): Reducer<ReducerMap> {
+	return function reduceInParallel (state: Mapable = {}, action: Action ): Mapable {
 		const sliceNames = Object.keys(reducerMap)
 
 		function createSlices (state: Mapable, sliceName: string): Mapable {
