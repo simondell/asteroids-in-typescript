@@ -121,6 +121,7 @@ export enum Directions {
 }
 
 enum ControlsActions {
+	ENGAGE_THRUST = 'CONTROLS/ENGAGE_THRUST',
 	SET_DIRECTION = 'CONTROLS/SET_DIRECTION'
 }
 
@@ -153,16 +154,20 @@ export function controls (
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-// rocket /////////////////////////////////////////////////////////////////////
+// rocket //////////////////////////////////////////////////////////////////////
 enum rocketActions {
+	ACCELERATE = 'ROCKET/ACCELERATE',
 	ROTATE = 'ROCKET/ROTATE',
 }
 
+export const accelerateRocket = createAction(rocketActions.ACCELERATE)
 export const turnRocket = createAction(rocketActions.ROTATE)
 
 export interface Rocket {
+	acceleration: Vectors.Vector2
 	angle: number
 	position: Vectors.Vector2
+	velocity: Vectors.Vector2
 }
 
 const root = getComputedStyle(document.documentElement)
