@@ -151,17 +151,19 @@ describe('combineInParallel', () => {
 	})
 })
 
-describe.only('getState', () => {
-	test('returns the current state', () => {
+describe('createStore2', () => {
+	test('applies the reducer to generate initial state', () => {
 		const [getState] = createStore2(addOrSubtractOne) 
 		expect(getState()).toEqual(0)
 	})
-})
 
-describe('dispatch', () => {
-	
-})
+	test('maintains state', () => {
+		const [getState, dispatch] = createStore2(addOrSubtractOne) 
+		const add = { type: 'TEST/ADD' }
 
-describe('notify', () => {
-	
+		dispatch(add)
+		dispatch(add)
+
+		expect(getState()).toEqual(2)
+	})
 })
