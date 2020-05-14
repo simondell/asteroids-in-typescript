@@ -227,7 +227,7 @@ console.log(`initialised`, store)
 
 function draw (shouldLog?: boolean): void {
 	const store = getState()
-	shouldLog && console.log(`draw() - store`, store)
+	// shouldLog && console.log(`draw() - store`, store)
 	animate( context, store, dispatch )
 
 	switch( store.settings.speed ) {
