@@ -131,6 +131,8 @@ export function createStore2 (
 		}
 	}
 
+	const init: Action = { type: 'STORE/INITIALISE' }
+	dispatch(init)
 	return [getState, dispatch, notify]
 }
 ////////////////////////////////////////////////////////////////////////////////

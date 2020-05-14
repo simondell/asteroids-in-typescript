@@ -2,6 +2,7 @@ import {
 	Action,
 	combineInParallel,
 	combineInSeries,
+	createStore2,
 	Mapable,
 } from './store'
 
@@ -148,4 +149,19 @@ describe('combineInParallel', () => {
 			someCounter: 42,
 		})
 	})
+})
+
+describe.only('getState', () => {
+	test('returns the current state', () => {
+		const [getState] = createStore2(addOrSubtractOne) 
+		expect(getState()).toEqual(0)
+	})
+})
+
+describe('dispatch', () => {
+	
+})
+
+describe('notify', () => {
+	
 })
