@@ -46,7 +46,7 @@ function combineInParallel (
 	return function reduceInParallel ( state: Mapable, action: Action ): ReducerMap {
 		const sliceNames = Object.keys(reducerMap)
 
-		function reduceSlices (state: Mapable, sliceName: string): Mapable {
+		function createSlices (state: Mapable, sliceName: string): Mapable {
 			const sliceState = state[sliceName]
 			const reducer = reducerMap[sliceName]
 			const nextSliceState = reducer(sliceState, action)
@@ -59,17 +59,17 @@ function combineInParallel (
 			}
 		}
 
-		return sliceNames.reduce(reduceSlices, state)
+		return sliceNames.reduce(createSlices, state)
 	}
 }
 
-function combineInSeries (...reducers: Reducer<any>[] ): Reducer<any> {
-	return function reduceInSeries ( state: Store, action: Action ): Store {
-		function reduceReducers (state: Store, reducer: Reducer<any>) {
+export function combineInSeries (...reducers: Reducer<any>[] ): Reducer<any> {
+	return function reduceSequencially ( state: Store, action: Action ): Store {
+		function serialCombine (state: Store, reducer: Reducer<any>) {
 			return reducer(state, action)
 		}
 
-		return reducers.reduce(reduceReducers, state)
+		return reducers.reduce(serialCombine, state)
 	}
 }
 
