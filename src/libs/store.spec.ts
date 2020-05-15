@@ -3,8 +3,18 @@ import {
 	combineInParallel,
 	combineInSeries,
 	createStore2,
+	handleAction,
+	handleActions,
 	Mapable,
 } from './store'
+
+function identity<T> (state: T | null = null, action: Action ): T | null {
+	return state
+}
+
+function noopReducer (state: void = undefined, action: Action ): void {
+	return
+}
 
 function generateOne (state = 1, action: Action ) {
 	return 1
@@ -12,6 +22,10 @@ function generateOne (state = 1, action: Action ) {
 
 function addOne (state = 0, action: Action ) {
 	return state + 1
+}
+
+function addTwo (state = 0, action: Action ) {
+	return state + 2
 }
 
 function subtractOne (state = 0, action: Action ) {
@@ -39,7 +53,7 @@ function toggleFlag (state = false, action: Action ) {
 
 const mockAction = { type: 'TEST/MOCK_ACTION' }
 
-describe('combineInSeries', () => {
+describe('`combineInSeries()`', () => {
 	test('retured reducer applies source reducers in series', () => {
 		const hopefullyInSeries = combineInSeries( generateOne, addOne )
 
@@ -94,7 +108,7 @@ describe('combineInSeries', () => {
 	})
 })
 
-describe('combineInParallel', () => {
+describe('`combineInParallel()`', () => {
 	describe('returned reducer calls all the slice reducers', () => {
 		const reducer1Spy = jest.fn()
 		const reducer2Spy = jest.fn()
@@ -151,7 +165,7 @@ describe('combineInParallel', () => {
 	})
 })
 
-describe('createStore2', () => {
+describe('`createStore2()`', () => {
 	test('applies the reducer to generate initial state', () => {
 		const [getState] = createStore2(addOrSubtractOne) 
 		expect(getState()).toEqual(0)
@@ -165,5 +179,57 @@ describe('createStore2', () => {
 		dispatch(add)
 
 		expect(getState()).toEqual(2)
+	})
+})
+
+describe('`handleAction()` creates reducers...', () => {
+	test('which use their default value when called with `undefined`', () => {
+		const type = 'TEST/HANDLE_ACTION'
+
+		const reducer = handleAction(type, identity, 23)
+
+		expect(reducer(undefined, { type })).toEqual(23)
+	})
+
+	test('which use the current state, or the default value, when passed an action they don\'t handle', () => {
+		const typeHandled = 'TEST/HANDLE_ACTION'
+		const typeUnhandled = 'TEST/UNHANDLED_ACTION'
+
+		const reducer = handleAction(typeHandled, identity, 23)
+
+		expect(reducer(undefined, { type: typeUnhandled })).toEqual(23)
+		expect(reducer(42, { type: typeUnhandled })).toEqual(42)
+	})
+
+	test('which applies the specified reducer when called with the recognised action', () => {
+		const type = 'TEST/HANDLE_ACTION'
+
+		const reducer = handleAction(type, addOne, 23)
+
+		expect(reducer(41, { type })).toEqual(42)
+	})
+
+	test('when passed an actionCreator, which behave as when passed a type string', () => {
+		const actionCreator = () => ({ type: 'TEST/HANDLE_ACTION' })
+
+		const reducer = handleAction(actionCreator, addOne, 41)
+
+		expect(reducer(undefined, actionCreator())).toEqual(42)
+	})
+})
+
+describe('`handleActions()` creates reducers... ', () => {
+	test('... from a map of types to reducers', () => {
+		const typeOne = 'TEST/HANDLE_ACTIONS_ONE'
+		const typeTwo = 'TEST/HANDLE_ACTIONS_TWO'
+
+		const reducer = handleActions({
+			[typeOne]: addOne,
+			[typeTwo]: addTwo,
+		}, 23)
+
+		expect(reducer(undefined, { type: 'TEST/UNHANDLED' })).toEqual(23)
+		expect(reducer(undefined, { type: typeOne })).toEqual(24)
+		expect(reducer(undefined, { type: typeTwo })).toEqual(25)
 	})
 })

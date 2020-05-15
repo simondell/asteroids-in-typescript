@@ -31,6 +31,11 @@ export interface Mapable {
 export type Store = Mapable
 // export type Store = number | string | Array<any> | Mapable
 
+// actions /////////////////////////////////////////////////////////////////////
+interface ActionCreator {
+	(payload?: any): Action
+}
+
 export function createAction ( type: string ): Function {
 	return function ( payload?: any ): Action {
 		return {
@@ -40,6 +45,37 @@ export function createAction ( type: string ): Function {
 	}
 }
 
+export function handleAction (
+	actionType: string | ActionCreator,
+	reducer: Reducer<any>,
+	defaultValue: any,
+): Reducer<any> {
+	const typeMatch = typeof actionType === 'function'
+		? actionType().type
+		: actionType
+
+	return function (state = defaultValue, action: Action) {
+		if(action.type === typeMatch) {
+			return reducer(state, action)
+		}
+
+		return state
+	}
+}
+
+export function handleActions (
+	reducerMap: ReducerMap,
+	defaultValue: any,
+): Reducer<any> {
+	const keys = Object.keys(reducerMap)
+	const reducers = keys.map(
+		key => handleAction(key, reducerMap[key], defaultValue)
+	)
+	return combineInSeries(...reducers)
+}
+////////////////////////////////////////////////////////////////////////////////
+
+// reducers ////////////////////////////////////////////////////////////////////
 export function combineInParallel ( reducerMap: ReducerMap ): Reducer<ReducerMap> {
 	return function reduceInParallel (state: Mapable = {}, action: Action ): Mapable {
 		const sliceNames = Object.keys(reducerMap)
@@ -97,10 +133,6 @@ export function createStore2 (
 ): [GetState, Dispatch, Notify] {
 	let state: any
 	let subscriptions: Function[] = []
-
-	// interface ActionCreator {
-	// 	(a: string): Action
-	// }
 
 	// function bindToDispatch (actionCreator: ActionCreator) {
 	// 	const action = 

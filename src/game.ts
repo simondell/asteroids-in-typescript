@@ -4,7 +4,7 @@ import {
 	Action,
 	combineInParallel,
 	createAction
-} from './store.js'
+} from './libs/store.js'
 
 // helpers /////////////////////////////////////////////////////////////////////
 function random(max = 1, min = 0) {

@@ -5,7 +5,7 @@ import {
 	createStore2,
 	Dispatch,
 	Store,
-} from './store.js'
+} from './libs/store.js'
 
 import gameLogic, {
 	Asteroid,
