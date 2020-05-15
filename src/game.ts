@@ -5,6 +5,7 @@ import {
 	combineInParallel,
 	createActionCreator,
 	handleActions,
+	Mapable,
 } from './libs/store.js'
 
 // helpers /////////////////////////////////////////////////////////////////////
@@ -140,8 +141,8 @@ const defaultControls = {
 	// shoot: false,
 }
 
-function setPropertyToPayload (name: string) {
-	return function <T = any> (state: T, action: Action): T {
+function setPropertyToPayload<T extends Mapable> (name: keyof T) {
+	return function (state: T, action: Action): T {
 		return {
 			...state,
 			[name]: action.payload
@@ -150,8 +151,8 @@ function setPropertyToPayload (name: string) {
 }
 
 export const controls = handleActions([
-	[engageThrust, setPropertyToPayload('direction')],
-	[setDirection, setPropertyToPayload('trust')],
+	[engageThrust, setPropertyToPayload<Controls>('thrust')],
+	[setDirection, setPropertyToPayload<Controls>('direction')],
 ], defaultControls)
 
 function old_controls (
