@@ -36,7 +36,7 @@ interface ActionCreator {
 	(payload?: any): Action
 }
 
-export function createAction ( type: string ): Function {
+export function createActionCreator ( type: string ): ActionCreator {
 	return function ( payload?: any ): Action {
 		return {
 			type,

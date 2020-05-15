@@ -3,7 +3,7 @@ import * as Vectors from './libs/vectors.js'
 import {
 	Action,
 	combineInParallel,
-	createAction
+	createActionCreator,
 	handleActions,
 } from './libs/store.js'
 
@@ -18,15 +18,15 @@ export enum GameActions {
 	Tick = 'GAME/TICK',
 }
 
-export const tick = createAction(GameActions.Tick)
-export const initialise = createAction(GameActions.Initialise)
+export const tick = createActionCreator(GameActions.Tick)
+export const initialise = createActionCreator(GameActions.Initialise)
 
 // asteroids /////////////////////////////////////////////////////////////////////
 enum AsteroidActions {
 	Add = 'ASTEROID/ADD',
 }
 
-export const addAsteroid = createAction(AsteroidActions.Add)
+export const addAsteroid = createActionCreator(AsteroidActions.Add)
 
 export interface Asteroid {
 	// colour:
@@ -177,8 +177,8 @@ enum rocketActions {
 	ROTATE = 'ROCKET/ROTATE',
 }
 
-export const accelerateRocket = createAction(rocketActions.ACCELERATE)
-export const turnRocket = createAction(rocketActions.ROTATE)
+export const accelerateRocket = createActionCreator(rocketActions.ACCELERATE)
+export const turnRocket = createActionCreator(rocketActions.ROTATE)
 
 export interface Rocket {
 	acceleration: Vectors.Vector2
@@ -234,9 +234,9 @@ enum SettingsActions {
 	Stop = 'DEV/STOP'
 }
 
-// const setSpeed = createAction<SettingsActions.Speed, Speeds>(SettingsActions.Speed)
-export const setSpeed = createAction(SettingsActions.Speed)
-export const stopAnimation = createAction(SettingsActions.Stop)
+// const setSpeed = createActionCreator<SettingsActions.Speed, Speeds>(SettingsActions.Speed)
+export const setSpeed = createActionCreator(SettingsActions.Speed)
+export const stopAnimation = createActionCreator(SettingsActions.Stop)
 
 export interface Settings {
 	speed: Speeds
