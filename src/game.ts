@@ -154,22 +154,6 @@ export const controls = handleActions([
 	[engageThrust, setPropertyToPayload<Controls>('thrust')],
 	[setDirection, setPropertyToPayload<Controls>('direction')],
 ], defaultControls)
-
-function old_controls (
-	state = defaultControls,
-	action: Action
-){
-	switch(action.type) {
-		case ControlsActions.SET_DIRECTION: {
-			const { payload: direction } = action
-			return {
-				...state,
-				direction
-			}
-		}
-	}
-	return state
-}
 ////////////////////////////////////////////////////////////////////////////////
 
 // rocket //////////////////////////////////////////////////////////////////////
