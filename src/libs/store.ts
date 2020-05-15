@@ -45,14 +45,16 @@ export function createAction ( type: string ): Function {
 	}
 }
 
+type ActionKey = string | ActionCreator
+
 export function handleAction (
-	actionType: string | ActionCreator,
+	actionKey: ActionKey,
 	reducer: Reducer<any>,
 	defaultValue: any,
 ): Reducer<any> {
-	const typeMatch = typeof actionType === 'function'
-		? actionType().type
-		: actionType
+	const typeMatch = typeof actionKey === 'function'
+		? actionKey().type
+		: actionKey
 
 	return function (state = defaultValue, action: Action) {
 		if(action.type === typeMatch) {
@@ -63,13 +65,14 @@ export function handleAction (
 	}
 }
 
+type ActionHandlerSpec = [ActionKey, Reducer<any>]
+
 export function handleActions (
-	reducerMap: ReducerMap,
+	specs: ActionHandlerSpec[],
 	defaultValue: any,
 ): Reducer<any> {
-	const keys = Object.keys(reducerMap)
-	const reducers = keys.map(
-		key => handleAction(key, reducerMap[key], defaultValue)
+	const reducers = specs.map(
+		([action, reducer]) => handleAction(action, reducer, defaultValue)
 	)
 	return combineInSeries(...reducers)
 }

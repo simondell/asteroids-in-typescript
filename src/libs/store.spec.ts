@@ -223,10 +223,10 @@ describe('`handleActions()` creates reducers... ', () => {
 		const typeOne = 'TEST/HANDLE_ACTIONS_ONE'
 		const typeTwo = 'TEST/HANDLE_ACTIONS_TWO'
 
-		const reducer = handleActions({
-			[typeOne]: addOne,
-			[typeTwo]: addTwo,
-		}, 23)
+		const reducer = handleActions([
+			[typeOne, addOne],
+			[typeTwo, addTwo],
+		], 23)
 
 		expect(reducer(undefined, { type: 'TEST/UNHANDLED' })).toEqual(23)
 		expect(reducer(undefined, { type: typeOne })).toEqual(24)
