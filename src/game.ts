@@ -4,6 +4,7 @@ import {
 	Action,
 	combineInParallel,
 	createAction
+	handleActions,
 } from './libs/store.js'
 
 // helpers /////////////////////////////////////////////////////////////////////
@@ -125,19 +126,35 @@ enum ControlsActions {
 	SET_DIRECTION = 'CONTROLS/SET_DIRECTION'
 }
 
-export const setDirection = createAction(ControlsActions.SET_DIRECTION)
+export const engageThrust = createActionCreator(ControlsActions.ENGAGE_THRUST)
+export const setDirection = createActionCreator(ControlsActions.SET_DIRECTION)
 
 export interface Controls {
 	direction: Directions
+	thrust: boolean
 }
 
 const defaultControls = {
 	direction: Directions.NEUTRAL,
-	// thrust: false,
+	thrust: false,
 	// shoot: false,
 }
 
-export function controls (
+function setPropertyToPayload (name: string) {
+	return function <T = any> (state: T, action: Action): T {
+		return {
+			...state,
+			[name]: action.payload
+		}
+	}
+}
+
+export const controls = handleActions([
+	[engageThrust, setPropertyToPayload('direction')],
+	[setDirection, setPropertyToPayload('trust')],
+], defaultControls)
+
+function old_controls (
 	state = defaultControls,
 	action: Action
 ){
