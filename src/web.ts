@@ -10,12 +10,12 @@ import {
 import gameLogic, {
 	Asteroid,
 	Directions,
+	engageThrust,
 	initialise,
 	Rocket,
 	setDirection,
 	setSpeed,
 	stopAnimation,
-	turnRocket,
 	tick,
 	Speeds,
 } from './game.js'
@@ -42,6 +42,7 @@ canvas.width = parseInt(canvasWidth, 10)
 // 	settings: Settings
 // }
 const [getState, dispatch, notify] = createStore2(gameLogic)
+dispatch( initialise() )
 ////////////////////////////////////////////////////////////////////////////////
 
 // "hardware" //////////////////////////////////////////////////////////////////
@@ -50,16 +51,25 @@ enum KEYS {
 	// POWER = 81,
 	RIGHT = 39,
 	// SHOOT = 32,
-	// UP = 38,
+	UP = 38,
 }
 
 function onKeyDown (event: KeyboardEvent): void {
+	const { controls: { direction } } = getState()
+
 	switch( event.keyCode ) {
 		case KEYS.LEFT:
-			dispatch( setDirection( Directions.LEFT ) )
+			if(direction != Directions.LEFT) {
+				dispatch( setDirection( Directions.LEFT ) )
+			}
 			break;
 		case KEYS.RIGHT:
-			dispatch( setDirection( Directions.RIGHT ) )
+			if(direction != Directions.RIGHT	) {
+				dispatch( setDirection( Directions.RIGHT ) )
+			}
+			break;
+		case KEYS.UP:
+			dispatch( engageThrust( true ) )
 			break;
 	}
 }
@@ -71,6 +81,9 @@ function onKeyUp (event: KeyboardEvent): void {
 		case KEYS.LEFT:
 		case KEYS.RIGHT:
 			dispatch( setDirection( Directions.NEUTRAL ) )
+			break;
+		case KEYS.UP:
+			dispatch( engageThrust( false ) )
 			break;
 	}
 }
@@ -118,6 +131,12 @@ function updateSpeedView (store: Store) {
 }
 
 notify(updateSpeedView, false)
+
+const ticker = document.getElementById( 'ticker' ) as HTMLButtonElement
+ticker.addEventListener('click', event => {
+	event.preventDefault()
+	draw()
+})
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -200,10 +219,6 @@ export function animate (context: CanvasRenderingContext2D, store: Store, dispat
 
 	renderRocket( context, rocket )
 
-	if(!(direction === Directions.NEUTRAL)) {
-		dispatch( turnRocket(direction) )
-	}
-
 	dispatch( tick() )
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -212,27 +227,21 @@ export function animate (context: CanvasRenderingContext2D, store: Store, dispat
 let clearRestartNotifier: Function | null = null
 function restartDraw (store: Store): void {
 	if(!(store.settings.speed === Speeds.Still)) {
-		draw(true)
 		if(clearRestartNotifier) {
 			clearRestartNotifier()
 			clearRestartNotifier = null
 		}
+		draw()
 	}
 }
 
-dispatch( initialise() )
-
-const store = getState()
-console.log(`initialised`, store)
-
-function draw (shouldLog?: boolean): void {
+function draw (): void {
 	const store = getState()
-	// shouldLog && console.log(`draw() - store`, store)
 	animate( context, store, dispatch )
 
 	switch( store.settings.speed ) {
 		case Speeds.Fast:
-			requestAnimationFrame(() => draw(false))
+			requestAnimationFrame(draw)
 			break
 		case Speeds.Slow:
 			setTimeout(draw, 333)

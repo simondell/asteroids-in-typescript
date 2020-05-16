@@ -50,7 +50,7 @@ type ActionKey = string | ActionCreator
 export function handleAction (
 	actionKey: ActionKey,
 	reducer: Reducer<any>,
-	defaultValue: any,
+	defaultValue?: any,
 ): Reducer<any> {
 	const typeMatch = typeof actionKey === 'function'
 		? actionKey().type
@@ -80,9 +80,9 @@ export function handleActions (
 
 // reducers ////////////////////////////////////////////////////////////////////
 export function combineInParallel ( reducerMap: ReducerMap ): Reducer<ReducerMap> {
-	return function reduceInParallel (state: Mapable = {}, action: Action ): Mapable {
-		const sliceNames = Object.keys(reducerMap)
+	const sliceNames = Object.keys(reducerMap)
 
+	return function reduceInParallel (state: Mapable = {}, action: Action ): Mapable {
 		function createSlices (state: Mapable, sliceName: string): Mapable {
 			const sliceState = state[sliceName]
 			const reducer = reducerMap[sliceName]
@@ -143,7 +143,12 @@ export function createStore2 (
 	// }
 
 	function dispatch(action: Action): void {
+// console.groupCollapsed(`dispatch -> ${action.type}`)
+// console.log(`old state`, state)
+// console.log(`action`, action)
 		state = rootReducer(state, action)
+// console.log(`new state`, state)
+// console.groupEnd()
 		subscriptions.forEach(subscripton => { subscripton(state) })
 	}
 

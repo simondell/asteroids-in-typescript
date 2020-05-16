@@ -3,7 +3,9 @@ import * as Vectors from './libs/vectors.js'
 import {
 	Action,
 	combineInParallel,
+	combineInSeries,
 	createActionCreator,
+	handleAction,
 	handleActions,
 	Mapable,
 } from './libs/store.js'
@@ -88,7 +90,9 @@ function asteroid (state: Asteroid = randomAsteroid(), action: Action) {
 	}
 }
 
-export function asteroids (state: Asteroid[] = [], action: Action) {
+const defaultAsteroids: Asteroid[] = []
+
+export function asteroids (state = defaultAsteroids, action: Action) {
 	switch (action.type) {
 		case GameActions.Initialise: {
 			const rocks: Asteroid[] = []
@@ -157,14 +161,6 @@ export const controls = handleActions([
 ////////////////////////////////////////////////////////////////////////////////
 
 // rocket //////////////////////////////////////////////////////////////////////
-enum rocketActions {
-	ACCELERATE = 'ROCKET/ACCELERATE',
-	ROTATE = 'ROCKET/ROTATE',
-}
-
-export const accelerateRocket = createActionCreator(rocketActions.ACCELERATE)
-export const turnRocket = createActionCreator(rocketActions.ROTATE)
-
 export interface Rocket {
 	acceleration: Vectors.Vector2
 	angle: number
@@ -172,39 +168,25 @@ export interface Rocket {
 	velocity: Vectors.Vector2
 }
 
-const root = getComputedStyle(document.documentElement)
-const canvasHeight = root.getPropertyValue('--game-height')
-const canvasWidth = root.getPropertyValue('--game-width')
-
+// rocket state
 const defaultRocket = {
-	angle: -90,
-	position: {
-		x: parseInt(canvasWidth, 10) / 2,
-		y: parseInt(canvasHeight, 10) / 2,
-	}
+	angle: 0,
+	position: { x: 400, y: 300 },
+	velocity: { x: 0, y: 0 }
 }
 
-export function rocket (
-	state = defaultRocket,
-	action: Action
-){
-	switch(action.type) {
-		case rocketActions.ROTATE: {
-			const { payload: direction } = action
-			const angularVelocity = direction === Directions.LEFT
-				? - 2
-				: + 2
-
-			return {
-				...state,
-				angle: state.angle + angularVelocity
-			}
+const rocket = handleAction(
+	tick,
+	(state: Rocket) => {
+		const newPosition = Vectors.add(state.position, state.velocity)
+		return {
+			...state,
+			position: newPosition
 		}
+	},
+	defaultRocket
+)
 
-		default:
-			return state
-	}
-}
 ////////////////////////////////////////////////////////////////////////////////
 
 // settings ////////////////////////////////////////////////////////////////////
@@ -227,12 +209,12 @@ export interface Settings {
 	speed: Speeds
 }
 
-const devDefaults: Settings = {
-	speed: Speeds.Slow,
+const defaultSettings: Settings = {
+	speed: Speeds.Still,
 }
 
 export function settings (
-	state = devDefaults,
+	state = defaultSettings,
 	action: Action
 ): Settings {
 	switch( action.type ) {
@@ -250,9 +232,90 @@ export function settings (
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-export default combineInParallel({
+// per slice ///////////////////////////////////////////////////////////////////
+type GameState = {
+	asteroids: Asteroid[]
+	controls: Controls
+	rocket: Rocket
+	settings: Settings
+}
+
+const initialGameState = {
+	asteroids: defaultAsteroids,
+	controls: defaultControls,
+	rocket: defaultRocket,
+	settings: defaultSettings
+}
+
+const perSlice = combineInParallel({
 	asteroids,
 	controls,
 	rocket,
 	settings,
 })
+////////////////////////////////////////////////////////////////////////////////
+
+// cross-slice /////////////////////////////////////////////////////////////////
+const turnRocket = handleAction(
+	tick,
+	(state: GameState): GameState => {
+		const {
+			controls,
+			rocket,
+		} = state
+
+		const { direction } = controls
+
+		if( direction === Directions.NEUTRAL ) return state
+
+		const angularVelocity = direction === Directions.LEFT ? - 5 : + 5
+		const nextAngle = rocket.angle + angularVelocity
+
+		const nextRocket = {
+			...rocket,
+			angle: nextAngle
+		}
+
+		return {
+			...state,
+			rocket: nextRocket
+		}
+	}
+)
+
+const accelerateRocket = handleAction(
+	tick,
+	(state: GameState): GameState => {
+		const {
+			controls,
+			rocket,
+		} = state
+
+		const { thrust } = controls
+
+		if( !thrust ) return state
+
+		const {
+			acceleration,
+			angle,
+			velocity,
+		} = rocket
+
+		let newVelocity = Vectors.add(velocity, acceleration)
+		newVelocity = Vectors.rotateByDegrees(angle, velocity)
+
+		const nextRocket = {
+			...rocket,
+			velocity: newVelocity,
+		}
+
+		return {
+			...state,
+			rocket: nextRocket
+		}
+	}
+)
+
+
+
+export default combineInSeries(perSlice, turnRocket, accelerateRocket)
