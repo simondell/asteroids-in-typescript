@@ -170,6 +170,7 @@ export interface Rocket {
 
 // rocket state
 const defaultRocket = {
+	acceleration: { x: 0.15, y: 0 },
 	angle: 0,
 	position: { x: 400, y: 300 },
 	velocity: { x: 0, y: 0 }
@@ -301,8 +302,8 @@ const accelerateRocket = handleAction(
 			velocity,
 		} = rocket
 
-		let newVelocity = Vectors.add(velocity, acceleration)
-		newVelocity = Vectors.rotateByDegrees(angle, velocity)
+		const thrustVector = Vectors.rotateByDegrees(angle, acceleration)
+		const newVelocity = Vectors.add(velocity, thrustVector)
 
 		const nextRocket = {
 			...rocket,
@@ -315,7 +316,5 @@ const accelerateRocket = handleAction(
 		}
 	}
 )
-
-
 
 export default combineInSeries(perSlice, turnRocket, accelerateRocket)
