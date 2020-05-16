@@ -61,7 +61,7 @@ describe('`combineInSeries()`', () => {
 	})
 
 	test('returned reducer calls each reducer with state from the previous one', () => {
-		const hopefullyInSeries = combineInSeries( addOne, addOne )
+		const hopefullyInSeries = combineInSeries(addOne, addOne)
 
 		expect(hopefullyInSeries(42, mockAction)).toEqual(44)
 	})
