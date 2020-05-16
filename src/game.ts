@@ -256,6 +256,13 @@ const perSlice = combineInParallel({
 })
 ////////////////////////////////////////////////////////////////////////////////
 
+function updateProps (state: Mapable, updates: Mapable) {
+	return {
+		...state,
+		...updates,
+	}
+}
+
 // cross-slice /////////////////////////////////////////////////////////////////
 const turnRocket = handleAction(
 	tick,
@@ -317,4 +324,44 @@ const accelerateRocket = handleAction(
 	}
 )
 
-export default combineInSeries(perSlice, turnRocket, accelerateRocket)
+// TODO this might be faster
+// function moveRocket (state: GameState) {
+// 	const {
+// 		controls,
+// 		rocket,
+// 	} = state
+
+// 	let angle: number
+// 	if( controls.direction != Directions.NEUTRAL ){
+// 		const angularVelocity = controls.direction === Directions.LEFT ? - 5 : + 5
+// 		angle = rocket.angle + angularVelocity
+// 	}
+
+// 	let velocity: Vectors.Vector2
+// 	if( controls.thrust ){
+// 		const {
+// 			acceleration,
+// 			angle,
+// 			velocity: prevVelocity,
+// 		} = rocket
+
+// 		const thrustVector = Vectors.rotateByDegrees(angle, acceleration)
+// 		velocity = Vectors.add(prevVelocity, thrustVector)
+// 	}
+
+// 	if( angle || velocity ){
+// 		return {
+// 			...state,
+// 			rocket: updateProps( rocket, { angle, velocity } )
+// 		}
+// 	}
+
+// 	return state
+// }
+
+export default combineInSeries(
+	perSlice,
+	turnRocket,
+	accelerateRocket,
+	// handleAction(tick, moveRocket),
+)
