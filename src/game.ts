@@ -18,7 +18,7 @@ export enum GameActions {
 export const tick = createActionCreator(GameActions.Tick)
 export const initialise = createActionCreator(GameActions.Initialise)
 
-// asteroids /////////////////////////////////////////////////////////////////////
+// asteroids ///////////////////////////////////////////////////////////////////
 enum AsteroidActions {
 	Add = 'ASTEROID/ADD',
 }
@@ -78,7 +78,7 @@ function moveAsteroid (
 const asteroid = handleActions([
 	[initialise, randomAsteroid],
 	[tick, moveAsteroid]
-])
+], {})
 
 const defaultAsteroids: Asteroid[] = []
 
