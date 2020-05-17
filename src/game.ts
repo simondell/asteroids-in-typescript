@@ -10,12 +10,6 @@ import {
 	Mapable,
 } from './libs/store.js'
 
-// helpers /////////////////////////////////////////////////////////////////////
-function random(max = 1, min = 0) {
-	return Math.random() * max + min
-}
-////////////////////////////////////////////////////////////////////////////////
-
 export enum GameActions {
 	Initialise = 'GAME/INITIALISE',
 	Tick = 'GAME/TICK',
@@ -36,6 +30,7 @@ export interface Asteroid {
 	// enabled: boolean
 	points: Vectors.Vector2[]
 	position: Vectors.Vector2
+	radius: number
 	velocity: Vectors.Vector2
 }
 
@@ -50,7 +45,7 @@ function randomAsteroid (): Asteroid {
 		y: random(20, -10),
 	}
 
-	const radius = random(80, 40)
+	const radius = Math.floor( random( 80, 40 ) )
 	const points: Vectors.Vector2[] = []
 	for( let angle = 0; angle < 360; angle += random( -10, 64 ) ) {
 		const nextPoint = {
@@ -63,9 +58,23 @@ function randomAsteroid (): Asteroid {
 	return {
 		points,
 		position,
+		radius,
 		velocity,
 	}
 }
+
+// function moveAsteroid (
+// 	state: Asteroid,
+// 	action: Action
+// ){
+// 	const position = Vectors.add(state.position, state.velocity)
+// 	return {
+// 		...state,
+// 		position
+// 	}
+// }
+
+// const asteroid = handleAction(tick, moveAsteroid, randomAsteroid())
 
 function asteroid (state: Asteroid = randomAsteroid(), action: Action) {
 	switch (action.type) {
@@ -75,14 +84,6 @@ function asteroid (state: Asteroid = randomAsteroid(), action: Action) {
 				...state,
 				position
 			}
-
-			// this.pos.plusEq(this.vel);
-
-			// if(this.pos.x+this.radius < 0) this.pos.x = canvas.width+this.radius;
-			// else if (this.pos.x-this.radius > canvas.width) this.pos.x = -this.radius;
-
-			// if(this.pos.y+this.radius < 0) this.pos.y = canvas.height+this.radius;
-			// else if (this.pos.y-this.radius > canvas.height) this.pos.y = -this.radius;
 		}
 
 		default:
@@ -145,15 +146,6 @@ const defaultControls = {
 	// shoot: false,
 }
 
-function setPropertyToPayload<T extends Mapable> (name: keyof T) {
-	return function (state: T, action: Action): T {
-		return {
-			...state,
-			[name]: action.payload
-		}
-	}
-}
-
 export const controls = handleActions([
 	[engageThrust, setPropertyToPayload<Controls>('thrust')],
 	[setDirection, setPropertyToPayload<Controls>('direction')],
@@ -207,30 +199,36 @@ export const setSpeed = createActionCreator(SettingsActions.Speed)
 export const stopAnimation = createActionCreator(SettingsActions.Stop)
 
 export interface Settings {
+	gameHeight: number
+	gameWidth: number
 	speed: Speeds
 }
 
 const defaultSettings: Settings = {
+	gameHeight: 0,
+	gameWidth: 0,
 	speed: Speeds.Still,
 }
 
-export function settings (
-	state = defaultSettings,
-	action: Action
-): Settings {
-	switch( action.type ) {
-		case SettingsActions.Stop:
-			return {
-				speed: Speeds.Still
-			}
-		case SettingsActions.Speed:
-			return {
-				speed: action.payload
-			}
-		default:
-			return state
+function applyInitialSettings (state: Settings, action: Action): Settings {
+	return {
+		...state,
+		...updateProps(state, action.payload.settings)
 	}
 }
+
+function stillMyBeatingHeart (state: Settings, action: Action): Settings {
+	return {
+		...state,
+		speed: Speeds.Still
+	}
+}
+
+const settings = handleActions([
+	[initialise, applyInitialSettings],
+	[setSpeed, setPropertyToPayload('speed')],
+	[stopAnimation, stillMyBeatingHeart],
+], defaultSettings)
 ////////////////////////////////////////////////////////////////////////////////
 
 // per slice ///////////////////////////////////////////////////////////////////
@@ -241,13 +239,6 @@ type GameState = {
 	settings: Settings
 }
 
-const initialGameState = {
-	asteroids: defaultAsteroids,
-	controls: defaultControls,
-	rocket: defaultRocket,
-	settings: defaultSettings
-}
-
 const perSlice = combineInParallel({
 	asteroids,
 	controls,
@@ -255,13 +246,6 @@ const perSlice = combineInParallel({
 	settings,
 })
 ////////////////////////////////////////////////////////////////////////////////
-
-function updateProps (state: Mapable, updates: Mapable) {
-	return {
-		...state,
-		...updates,
-	}
-}
 
 // cross-slice /////////////////////////////////////////////////////////////////
 const turnRocket = handleAction(
@@ -358,10 +342,92 @@ const accelerateRocket = handleAction(
 
 // 	return state
 // }
+const wrapAsteroids = handleAction(
+	tick,
+	(state: GameState) => {
+		const {
+			asteroids,
+			settings,
+		} = state
 
+		let wrappedAsteroids: Asteroid[] = asteroids
+		let i = asteroids.length
+		while( i-- )
+		{
+			const rock = wrappedAsteroids[i]
+
+			let x: number = rock.position.x
+			if( x + rock.radius < 0 )
+			{
+				x = settings.gameWidth + rock.radius
+			}
+			else if( x - rock.radius > settings.gameWidth )
+			{
+				x = 0 - rock.radius
+			}
+
+			let y: number = rock.position.y
+			if( y + rock.radius < 0 )
+			{
+				y = settings.gameHeight + rock.radius
+			}
+			else if ( y - rock.radius > settings.gameHeight)
+			{
+				y = 0 - rock.radius
+			}
+
+			let position = { x, y }
+			if( !Vectors.equal( rock.position, { x, y } ) )
+			{
+				wrappedAsteroids = [
+					...wrappedAsteroids.slice(0, i),
+					{ ...wrappedAsteroids[i], position },
+					...wrappedAsteroids.slice(i + 1)
+				]
+			}
+		}
+
+		if( wrappedAsteroids == asteroids ) return state
+
+		return {
+			...state,
+			asteroids: wrappedAsteroids
+		}
+	}
+)
+
+// store ///////////////////////////////////////////////////////////////////////
 export default combineInSeries(
 	perSlice,
 	turnRocket,
 	accelerateRocket,
+	wrapAsteroids,
 	// handleAction(tick, moveRocket),
 )
+////////////////////////////////////////////////////////////////////////////////
+
+// helpers /////////////////////////////////////////////////////////////////////
+function random (max = 1, min = 0) {
+	return Math.random() * max + min
+}
+
+// function randomFloor (max = 1, min = 0) {
+// 	return Math.floor(random(max, min))
+// }
+
+function setPropertyToPayload<T extends Mapable> (name: keyof T) {
+	return function (state: T, action: Action): T {
+		return {
+			...state,
+			[name]: action.payload
+		}
+	}
+}
+
+function updateProps (state: Mapable, updates: Mapable) {
+	return {
+		...state,
+		...updates,
+	}
+}
+////////////////////////////////////////////////////////////////////////////////

@@ -6,35 +6,44 @@
 
 	<style type="text/css">
 		:root {
-			--game-height: 600px;
-			--game-width: 800px;
+			--space: rgb(15, 8, 50);
+			--star: rgb(255, 244, 244);
+		}
+
+		html, body {
+			height: 100%;
 		}
 
 		body {
+			box-sizing: border-box;
+			background-color: var(--space);
+			color: var(--star);
 			display: flex;
-			align-items: flex-start;
+			font-size: 100%;
+			font-family: Helvetica;
+			padding: 10px;
+			margin: 0;
 		}
 
 		main {
-			height: var(--game-height);
-			width: var(--game-width);
+			flex-grow: 1;
 		}
 
 		canvas {
+			border: 1px dotted var(--star);
 			height: 100%;
 			width: 100%;
 		}
 
 		aside {
+			background-color: rgba(255,255,255,0.1);
 			align-items: stretch;
-			border: 1px solid black;
-			border-radius: 3px;
 			display: flex;
 			flex-direction: column;
 			justify-content: flex-start;
-			margin-left: 10px;
 			padding: 10px;
-			width: 100px;
+			margin-left: 10px;
+			width: 120px;
 		}
 
 		aside * + * {
@@ -46,27 +55,45 @@
 			border-radius: 3px;
 			border: 0;
 			display: flex;
-			font-size: 2rem;
+			font-size: 1.8rem;
 			justify-content: center;
 		}
 
-		button[type="reset"] {
-			--hue: rgb(255, 0, 0);
-			--glow: rgba(255, 124, 124, 0.5);
 
+		button {
 			background-color: var(--hue);
 			color: white;
 			font-weight: 700;
 			box-shadow: 0 3px 3px var(--glow);
+			text-shadow: 0 0 4px rgba(0,0,0,0.2);
 		}
 
-		aside > button:active {
+		#stop {
+			--hue: rgb(255, 0, 0);
+			--glow: rgba(255, 124, 124, 0.5);
+		}
+
+		#stop:active {
 			--hue: rgb(255, 124, 0);
 			--glow: rgba(255, 124, 0, 0.5);
 		}
 
+		#ticker {
+			--hue: rgb(0, 255, 0);
+			--glow: rgba(124, 254, 124, 0.5);
+		}
+
+		#ticker:active {
+			--hue: rgb(0, 255, 124);
+			--glow: rgba(124, 254, 124, 0.5);
+		}
+
 		fieldset {
 			align-self: stretch;
+		}
+
+		legend {
+
 		}
 
 		label {

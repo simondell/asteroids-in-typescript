@@ -24,12 +24,11 @@ import gameLogic, {
 const canvas = (document.getElementById('screen')) as HTMLCanvasElement
 const context = canvas.getContext( '2d' )
 
-const root = getComputedStyle(document.documentElement)
-const canvasHeight = root.getPropertyValue('--game-height')
-const canvasWidth = root.getPropertyValue('--game-width')
-
-canvas.height = parseInt(canvasHeight, 10)
-canvas.width = parseInt(canvasWidth, 10)
+const canvasStyles = window.getComputedStyle(canvas)
+const canvasHeight = parseInt(canvasStyles.getPropertyValue('height'), 10)
+const canvasWidth = parseInt(canvasStyles.getPropertyValue('width'), 10)
+canvas.height = canvasHeight
+canvas.width = canvasWidth
 
 // interface RenderFunction {
 // 	(c: CanvasRenderingContext2D ): void
@@ -42,7 +41,13 @@ canvas.width = parseInt(canvasWidth, 10)
 // 	settings: Settings
 // }
 const [getState, dispatch, notify] = createStore2(gameLogic)
-dispatch( initialise() )
+dispatch( initialise({
+	settings: {
+		gameHeight: canvasHeight,
+		gameWidth: canvasWidth,
+		speed: Speeds.Still,
+	}
+}) )
 ////////////////////////////////////////////////////////////////////////////////
 
 // "hardware" //////////////////////////////////////////////////////////////////
@@ -100,7 +105,7 @@ stop.addEventListener('click', event => {
 
 const radios = document.querySelector('#speeds')
 radios.addEventListener('click', event => {
-		// event.preventDefault()
+		event.preventDefault()
 
 		let radio: HTMLElement
 		// if it's a label
@@ -170,11 +175,11 @@ function renderBackground ( context: CanvasRenderingContext2D ) {
 	context.strokeStyle = "#ffffff"
 	context.lineWidth = 2
 	context.fillStyle = 'rgb(15, 8, 50)'
-	context.fillRect( 0, 0, 800, 600 )
+	context.fillRect( 0, 0, canvasWidth, canvasHeight )
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-// rocket //////////////////////////////////////////////////////////////////
+// rocket //////////////////////////////////////////////////////////////////////
 export function renderRocket (
 	context: CanvasRenderingContext2D,
 	rocket: Rocket
@@ -203,7 +208,11 @@ export function renderRocket (
 ////////////////////////////////////////////////////////////////////////////////
 
 // animate //////////////////////////////////////////////////////////////////
-export function animate (context: CanvasRenderingContext2D, store: Store, dispatch: Dispatch) {
+export function animate (
+	context: CanvasRenderingContext2D,
+	store: Store,
+	dispatch: Dispatch
+) {
 	const { direction } = store.controls
 	const {
 		asteroids,
