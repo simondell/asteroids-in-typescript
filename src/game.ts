@@ -63,33 +63,22 @@ function randomAsteroid (): Asteroid {
 	}
 }
 
-// function moveAsteroid (
-// 	state: Asteroid,
-// 	action: Action
-// ){
-// 	const position = Vectors.add(state.position, state.velocity)
-// 	return {
-// 		...state,
-// 		position
-// 	}
-// }
-
-// const asteroid = handleAction(tick, moveAsteroid, randomAsteroid())
-
-function asteroid (state: Asteroid = randomAsteroid(), action: Action) {
-	switch (action.type) {
-		case GameActions.Tick: {
-			const position = Vectors.add(state.position, state.velocity)
-			return {
-				...state,
-				position
-			}
-		}
-
-		default:
-			return state
+function moveAsteroid (
+	state: Asteroid,
+	action: Action
+){
+	const position = Vectors.add(state.position, state.velocity)
+	return {
+		...state,
+		position
 	}
 }
+
+// const asteroid = handleAction(tick, moveAsteroid, randomAsteroid())
+const asteroid = handleActions([
+	[initialise, randomAsteroid],
+	[tick, moveAsteroid]
+])
 
 const defaultAsteroids: Asteroid[] = []
 
