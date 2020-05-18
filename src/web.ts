@@ -139,7 +139,7 @@ notify(updateSpeedView, false)
 const ticker = document.getElementById( 'ticker' ) as HTMLButtonElement
 ticker.addEventListener('click', event => {
 	event.preventDefault()
-	gameLoop() // ToDo change to draw()
+	draw(context, getState(), dispatch)
 })
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -216,9 +216,11 @@ function restartgameLoop (store: Store): void {
 	gameLoop()
 }
 
-function gameLoop (): void {
-	const store = getState()
-
+function draw (
+	context: CanvasRenderingContext2D,
+	store: GameStore,
+	dispatch: Dispatch
+){
 	const { direction } = store.controls
 	const {
 		asteroids,
@@ -235,6 +237,12 @@ function gameLoop (): void {
 	renderRocket( context, rocket )
 
 	dispatch( tick() )
+}
+
+function gameLoop (): void {
+	const store = getState()
+
+	draw(context, store, dispatch)
 
 	switch( store.settings.speed ) {
 		case Speeds.Fast:
