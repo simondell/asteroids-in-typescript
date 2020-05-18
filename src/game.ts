@@ -45,9 +45,9 @@ function randomAsteroid (): Asteroid {
 		y: random(20, -10),
 	}
 
-	const radius = Math.floor( random( 80, 40 ) )
+	const radius = Math.floor( random( 70, 30 ) )
 	const points: Vectors.Vector2[] = []
-	for( let angle = 0; angle < 360; angle += random( -10, 64 ) ) {
+	for( let angle = 0; angle < 360; angle += random( 104, 0 ) ) {
 		const nextPoint = {
 			x: radius + random( radius / 2, radius / -2 ),
 			y: 0
@@ -385,12 +385,49 @@ const wrapAsteroids = handleAction(
 	}
 )
 
+const stationary = { x: 0, y: 0 }
+const wrapRocket = handleAction(
+	tick,
+	(state: GameState) => {
+		const {
+			rocket,
+			settings,
+		} = state
+
+		const { velocity } = rocket
+		if( Vectors.equal( velocity, stationary ) ) return state
+
+		let { x, y } = rocket.position
+		if( x < 0 ){
+			x = settings.gameWidth
+		}
+		else if( x > settings.gameWidth){
+			x = 0
+		} 
+
+		if( y < 0 ){
+			y = settings.gameHeight;
+		}
+		else if ( y > settings.gameHeight ){
+		 y = 0
+		}
+
+		const position = { x, y }
+		const newRocket = updateProps(rocket, { position })
+		return {
+			...state,
+			rocket: newRocket
+		}
+	}
+)
+
 // store ///////////////////////////////////////////////////////////////////////
 export default combineInSeries(
 	perSlice,
 	turnRocket,
 	accelerateRocket,
 	wrapAsteroids,
+	wrapRocket,
 	// handleAction(tick, moveRocket),
 )
 ////////////////////////////////////////////////////////////////////////////////

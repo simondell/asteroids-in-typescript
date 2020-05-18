@@ -192,9 +192,10 @@ export function renderRocket (
 	context.lineWidth = 2
 
 	context.beginPath()
+	// TODO should be based on rocket.width: number, rocket.length: number
 	context.moveTo( -10, -10 )
 	context.lineTo( -10, 10 )
-	context.lineTo( 23, 0 )
+	context.lineTo( 15, 0 )
 	context.closePath()
 	context.stroke()
 
