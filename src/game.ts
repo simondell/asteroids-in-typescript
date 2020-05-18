@@ -108,6 +108,7 @@ export function asteroids (state = defaultAsteroids, action: Action) {
 			return state
 	}
 }
+////////////////////////////////////////////////////////////////////////////////
 
 // controls ////////////////////////////////////////////////////////////////////
 export enum Directions {
@@ -118,11 +119,13 @@ export enum Directions {
 
 enum ControlsActions {
 	ENGAGE_THRUST = 'CONTROLS/ENGAGE_THRUST',
-	SET_DIRECTION = 'CONTROLS/SET_DIRECTION'
+	SET_DIRECTION = 'CONTROLS/SET_DIRECTION',
+	SHOOT = 'CONTROLS/SHOOT',
 }
 
 export const engageThrust = createActionCreator(ControlsActions.ENGAGE_THRUST)
 export const setDirection = createActionCreator(ControlsActions.SET_DIRECTION)
+export const shoot = createActionCreator(ControlsActions.SHOOT)
 
 export interface Controls {
 	direction: Directions
@@ -168,7 +171,22 @@ const rocket = handleAction(
 	},
 	defaultRocket
 )
+////////////////////////////////////////////////////////////////////////////////
 
+// bullets /////////////////////////////////////////////////////////////////////
+export interface Bullet {
+	position: Vectors.Vector2
+	velocity: Vectors.Vector2
+}
+
+const defaultBullet = {
+	position: { x: 0, y: 0 },
+	velocity: { x: 0, y: 0 },
+}
+
+function bullets (state: Bullet[] = []) {
+	return state
+}
 ////////////////////////////////////////////////////////////////////////////////
 
 // settings ////////////////////////////////////////////////////////////////////
@@ -223,6 +241,7 @@ const settings = handleActions([
 // per slice ///////////////////////////////////////////////////////////////////
 export interface GameState {
 	asteroids: Asteroid[]
+	bullets: Bullet[]
 	controls: Controls
 	rocket: Rocket
 	settings: Settings
@@ -230,6 +249,7 @@ export interface GameState {
 
 const perSlice = combineInParallel({
 	asteroids,
+	bullets,
 	controls,
 	rocket,
 	settings,
@@ -421,6 +441,33 @@ const wrapRocket = handleAction(
 	}
 )
 
+function moveBullet (state: GameState, action: Action) {
+	return state
+}
+
+function shotFired (state: GameState, action: Action) {
+	const { rocket } = state
+	const newBullet = {
+		position: { ...rocket.position },
+		velocity: { ...rocket.velocity },
+	}
+
+	const bullets = [
+		...state.bullets,
+		newBullet
+	]
+
+	return {
+		...state,
+		bullets
+	}
+}
+
+const bulletActions = handleActions([
+	[shoot, shotFired],
+	[tick, moveBullet],
+], [])
+
 // store ///////////////////////////////////////////////////////////////////////
 export default combineInSeries(
 	perSlice,
@@ -428,6 +475,7 @@ export default combineInSeries(
 	accelerateRocket,
 	wrapAsteroids,
 	wrapRocket,
+	bulletActions,
 	// handleAction(tick, moveRocket),
 )
 ////////////////////////////////////////////////////////////////////////////////

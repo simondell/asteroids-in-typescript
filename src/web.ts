@@ -9,6 +9,7 @@ import {
 
 import gameLogic, {
 	Asteroid,
+	Bullet,
 	Directions,
 	engageThrust,
 	GameState,
@@ -16,6 +17,7 @@ import gameLogic, {
 	Rocket,
 	setDirection,
 	setSpeed,
+	shoot,
 	stopAnimation,
 	tick,
 	Speeds,
@@ -51,7 +53,7 @@ enum KEYS {
 	LEFT = 37,
 	// POWER = 81,
 	RIGHT = 39,
-	// SHOOT = 32,
+	SPACE = 32,
 	UP = 38,
 }
 
@@ -63,15 +65,21 @@ function onKeyDown (event: KeyboardEvent): void {
 			if(direction != Directions.LEFT) {
 				dispatch( setDirection( Directions.LEFT ) )
 			}
-			break;
+			break
+
 		case KEYS.RIGHT:
 			if(direction != Directions.RIGHT	) {
 				dispatch( setDirection( Directions.RIGHT ) )
 			}
-			break;
+			break
+
+		case KEYS.SPACE:
+			dispatch( shoot() )
+			break
+
 		case KEYS.UP:
 			dispatch( engageThrust( true ) )
-			break;
+			break
 	}
 }
 
@@ -203,16 +211,22 @@ export function renderRocket (
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-// game loop ///////////////////////////////////////////////////////////////////
-let clearRestartNotifier: Function | null = null
-function restartgameLoop (store: Store): void {
-	if(clearRestartNotifier) {
-		clearRestartNotifier()
-		clearRestartNotifier = null
-	}
-	gameLoop()
+// bullets /////////////////////////////////////////////////////////////////////
+export function renderBullet (
+	context: CanvasRenderingContext2D,
+	bullet: Bullet
+): void {
+	const radius = 2
+	const { x, y } = bullet.position
+	context.lineWidth = radius
+	context.strokeStyle = "#fff"
+	context.beginPath()
+	context.arc(x, y, radius, 0, Math.PI * 2, true)
+	context.stroke()
 }
+////////////////////////////////////////////////////////////////////////////////
 
+// draw ///////////////////////////////////////////////////////////////////
 function draw (
 	context: CanvasRenderingContext2D,
 	store: GameState,
@@ -221,6 +235,7 @@ function draw (
 	const { direction } = store.controls
 	const {
 		asteroids,
+		bullets,
 		rocket,
 	} = store
 
@@ -231,9 +246,25 @@ function draw (
 		renderAsteroid( context, asteroids[rock] )
 	}
 
+	let shot = bullets.length
+	while( shot-- ) {
+		renderBullet( context, bullets[shot] )
+	}
+
 	renderRocket( context, rocket )
 
 	dispatch( tick() )
+}
+////////////////////////////////////////////////////////////////////////////////
+
+// game loop ///////////////////////////////////////////////////////////////////
+let clearRestartNotifier: Function | null = null
+function restartgameLoop (store: Store): void {
+	if(clearRestartNotifier) {
+		clearRestartNotifier()
+		clearRestartNotifier = null
+	}
+	gameLoop()
 }
 
 function gameLoop (): void {
