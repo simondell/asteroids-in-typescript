@@ -2,7 +2,7 @@ import {
 	Action,
 	combineInParallel,
 	combineInSeries,
-	createStore2,
+	createStore,
 	handleAction,
 	handleActions,
 	Mapable,
@@ -165,14 +165,14 @@ describe('`combineInParallel()`', () => {
 	})
 })
 
-describe('`createStore2()`', () => {
+describe('`createStore()`', () => {
 	test('applies the reducer to generate initial state', () => {
-		const [getState] = createStore2(addOrSubtractOne) 
+		const [getState] = createStore(addOrSubtractOne) 
 		expect(getState()).toEqual(0)
 	})
 
 	test('maintains state', () => {
-		const [getState, dispatch] = createStore2(addOrSubtractOne) 
+		const [getState, dispatch] = createStore(addOrSubtractOne) 
 		const add = { type: 'TEST/ADD' }
 
 		dispatch(add)

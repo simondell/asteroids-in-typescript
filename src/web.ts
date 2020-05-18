@@ -2,7 +2,7 @@ import * as Vectors from './libs/vectors.js'
 
 import {
 	Action,
-	createStore2,
+	createStore,
 	Dispatch,
 	Store,
 } from './libs/store.js'
@@ -36,7 +36,7 @@ canvas.width = canvasWidth
 // }
 
 // store ///////////////////////////////////////////////////////////////////////
-const [getState, dispatch, notify] = createStore2<GameState>(gameLogic)
+const [getState, dispatch, notify] = createStore<GameState>(gameLogic)
 dispatch( initialise({
 	settings: {
 		gameHeight: canvasHeight,

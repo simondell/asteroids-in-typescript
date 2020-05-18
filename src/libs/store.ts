@@ -131,7 +131,7 @@ export interface Notify {
 	( f: Function, b?: boolean ): ClearNotification
 }
 
-export function createStore2<T> (
+export function createStore<T> (
 	rootReducer: Reducer<any>
 ): [GetState<T>, Dispatch, Notify] {
 	let state: T
