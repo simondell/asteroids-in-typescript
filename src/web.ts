@@ -45,7 +45,7 @@ dispatch( initialise({
 	settings: {
 		gameHeight: canvasHeight,
 		gameWidth: canvasWidth,
-		speed: Speeds.Still,
+		speed: Speeds.Fast,
 	}
 }) )
 ////////////////////////////////////////////////////////////////////////////////
@@ -123,8 +123,7 @@ radios.addEventListener('click', event => {
 })
 
 function updateSpeedView (store: Store) {
-	// const { speed } = store.settings
-	const { settings: { speed } } = getState()
+	const { settings: { speed } } = store
 	const radios = document.querySelectorAll(`[type="radio"]`)
 
 	Array.prototype.forEach.call(radios, (radio: HTMLInputElement) => {
@@ -140,7 +139,7 @@ notify(updateSpeedView, false)
 const ticker = document.getElementById( 'ticker' ) as HTMLButtonElement
 ticker.addEventListener('click', event => {
 	event.preventDefault()
-	draw()
+	gameLoop() // ToDo change to draw()
 })
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -207,12 +206,19 @@ export function renderRocket (
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-// animate //////////////////////////////////////////////////////////////////
-export function animate (
-	context: CanvasRenderingContext2D,
-	store: Store,
-	dispatch: Dispatch
-) {
+// game loop ///////////////////////////////////////////////////////////////////
+let clearRestartNotifier: Function | null = null
+function restartgameLoop (store: Store): void {
+	if(clearRestartNotifier) {
+		clearRestartNotifier()
+		clearRestartNotifier = null
+	}
+	gameLoop()
+}
+
+function gameLoop (): void {
+	const store = getState()
+
 	const { direction } = store.controls
 	const {
 		asteroids,
@@ -229,39 +235,21 @@ export function animate (
 	renderRocket( context, rocket )
 
 	dispatch( tick() )
-}
-////////////////////////////////////////////////////////////////////////////////
-
-// game loop ///////////////////////////////////////////////////////////////////
-let clearRestartNotifier: Function | null = null
-function restartDraw (store: Store): void {
-	if(!(store.settings.speed === Speeds.Still)) {
-		if(clearRestartNotifier) {
-			clearRestartNotifier()
-			clearRestartNotifier = null
-		}
-		draw()
-	}
-}
-
-function draw (): void {
-	const store = getState()
-	animate( context, store, dispatch )
 
 	switch( store.settings.speed ) {
 		case Speeds.Fast:
-			requestAnimationFrame(draw)
+			requestAnimationFrame(gameLoop)
 			break
 		case Speeds.Slow:
-			setTimeout(draw, 333)
+			setTimeout(gameLoop, 333)
 			break
 		default: {
-			clearRestartNotifier = notify(restartDraw, false)
+			clearRestartNotifier = notify(restartgameLoop, false)
 			console.log('stop!!!')
 			return
 		}
 	}
 }
 
-draw()
+gameLoop()
 ////////////////////////////////////////////////////////////////////////////////
