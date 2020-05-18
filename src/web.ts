@@ -11,6 +11,7 @@ import gameLogic, {
 	Asteroid,
 	Directions,
 	engageThrust,
+	GameState,
 	initialise,
 	Rocket,
 	setDirection,
@@ -35,12 +36,7 @@ canvas.width = canvasWidth
 // }
 
 // store ///////////////////////////////////////////////////////////////////////
-// interface GameStore {
-// 	controls: Controls
-// 	rocket: Rocket
-// 	settings: Settings
-// }
-const [getState, dispatch, notify] = createStore2(gameLogic)
+const [getState, dispatch, notify] = createStore2<GameState>(gameLogic)
 dispatch( initialise({
 	settings: {
 		gameHeight: canvasHeight,
@@ -218,7 +214,7 @@ function restartgameLoop (store: Store): void {
 
 function draw (
 	context: CanvasRenderingContext2D,
-	store: GameStore,
+	store: GameState,
 	dispatch: Dispatch
 ){
 	const { direction } = store.controls

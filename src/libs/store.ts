@@ -119,8 +119,8 @@ export interface Dispatch {
 	( a: Action ): void
 }
 
-export interface GetState {
-	(): Store
+export interface GetState<T> {
+	(): T
 }
 
 export interface Listener {
@@ -131,10 +131,10 @@ export interface Notify {
 	( f: Function, b?: boolean ): ClearNotification
 }
 
-export function createStore2 (
+export function createStore2<T> (
 	rootReducer: Reducer<any>
-): [GetState, Dispatch, Notify] {
-	let state: any
+): [GetState<T>, Dispatch, Notify] {
+	let state: T
 	let subscriptions: Function[] = []
 
 	// function bindToDispatch (actionCreator: ActionCreator) {
@@ -152,7 +152,7 @@ export function createStore2 (
 		subscriptions.forEach(subscripton => { subscripton(state) })
 	}
 
-	function getState (): Store {
+	function getState (): T {
 		return state
 	}
 
