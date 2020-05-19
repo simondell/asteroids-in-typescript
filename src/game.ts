@@ -456,39 +456,45 @@ const wrapRocket = handleAction(
 	}
 )
 
-function shotFired (state: GameState, action: Action) {
-	const { rocket } = state
+// function shotFired (state: GameState, action: Action) {
+const shotFired = handleAction(
+	shoot,
+	(state: GameState, action: Action): GameState => {
+		const { rocket } = state
 
-	const offset = Vectors.rotateByDegrees(
-		rocket.angle,
-		defaultBullet.position,
-	)
-	const position = Vectors.add(rocket.position, offset)
+		const offset = Vectors.rotateByDegrees(
+			rocket.angle,
+			defaultBullet.position,
+		)
+		const position = Vectors.add(rocket.position, offset)
 
-	const velocity = Vectors.rotateByDegrees(
-		rocket.angle,
-		defaultBullet.velocity
-	)
+		const velocity = Vectors.rotateByDegrees(
+			rocket.angle,
+			defaultBullet.velocity
+		)
 
-	const newBullet = {
-		position,
-		velocity,
+		const newBullet = {
+			position,
+			velocity,
+		}
+
+		const bullets = [
+			...state.bullets,
+			newBullet
+		]
+
+		return {
+			...state,
+			bullets
+		}
 	}
+)
 
-	const bullets = [
-		...state.bullets,
-		newBullet
-	]
+// const bulletActions = handleActions([
+// 	[shoot, shotFired],
+// ], [])
 
-	return {
-		...state,
-		bullets
-	}
-}
-
-const bulletActions = handleActions([
-	[shoot, shotFired],
-], [])
+// function cullLostBullets ()
 
 // store ///////////////////////////////////////////////////////////////////////
 export default combineInSeries(
@@ -497,7 +503,7 @@ export default combineInSeries(
 	accelerateRocket,
 	wrapAsteroids,
 	wrapRocket,
-	bulletActions,
+	shotFired,
 	// handleAction(tick, moveRocket),
 )
 ////////////////////////////////////////////////////////////////////////////////
