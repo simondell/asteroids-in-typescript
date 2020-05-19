@@ -198,7 +198,7 @@ function moveBullet (bullet: Bullet, action: Action): Bullet | undefined {
 }
 
 const bullets = handleActions([
-	[tick, reduceAll(moveBullet)],
+	[tick, reduceAll<Bullet>(moveBullet)],
 ],
 []
 )
@@ -490,11 +490,37 @@ const shotFired = handleAction(
 	}
 )
 
-// const bulletActions = handleActions([
-// 	[shoot, shotFired],
-// ], [])
+const cullLostBullets = handleAction(
+	tick,
+	(state: GameState): GameState => {
+		const { settings: {
+			gameHeight,
+			gameWidth,
+		}} = state
 
-// function cullLostBullets ()
+		function cullWhenOutOfBounds (bullets: Bullet[], bullet: Bullet, index: number) {
+			const { position: { x, y } } = bullet
+			if(
+				(x > -2 && x < (gameWidth + 2))
+				&&
+				(y > -2 && y < (gameHeight + 2))
+			){
+					return bullets
+			}
+			else {
+				return [
+					...bullets.slice(0, index),
+					...bullets.slice(index + 1)
+				]
+			}
+		}
+
+		return {
+			...state,
+			bullets: state.bullets.reduce(cullWhenOutOfBounds, state.bullets)
+		}
+	}
+)
 
 // store ///////////////////////////////////////////////////////////////////////
 export default combineInSeries(
@@ -504,6 +530,7 @@ export default combineInSeries(
 	wrapAsteroids,
 	wrapRocket,
 	shotFired,
+	cullLostBullets,
 	// handleAction(tick, moveRocket),
 )
 ////////////////////////////////////////////////////////////////////////////////
