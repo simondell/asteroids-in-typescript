@@ -8,6 +8,7 @@ import {
 	handleAction,
 	handleActions,
 	Mapable,
+	Reducer,
 } from './libs/store.js'
 
 export enum GameActions {
@@ -180,13 +181,27 @@ export interface Bullet {
 }
 
 const defaultBullet = {
-	position: { x: 0, y: 0 },
-	velocity: { x: 0, y: 0 },
+	position: { x: 11, y: 0 },
+	velocity: { x: 10, y: 0 },
 }
 
-function bullets (state: Bullet[] = []) {
-	return state
+// function bullets (state: Bullet[] = []) {
+// 	return state
+// }
+
+function moveBullet (bullet: Bullet, action: Action): Bullet | undefined {
+	const newPosition = Vectors.add(bullet.position, bullet.velocity)
+	return {
+		...bullet,
+		position: newPosition
+	}
 }
+
+const bullets = handleActions([
+	[tick, reduceAll(moveBullet)],
+],
+[]
+)
 ////////////////////////////////////////////////////////////////////////////////
 
 // settings ////////////////////////////////////////////////////////////////////
@@ -441,15 +456,23 @@ const wrapRocket = handleAction(
 	}
 )
 
-function moveBullet (state: GameState, action: Action) {
-	return state
-}
-
 function shotFired (state: GameState, action: Action) {
 	const { rocket } = state
+
+	const offset = Vectors.rotateByDegrees(
+		rocket.angle,
+		defaultBullet.position,
+	)
+	const position = Vectors.add(rocket.position, offset)
+
+	const velocity = Vectors.rotateByDegrees(
+		rocket.angle,
+		defaultBullet.velocity
+	)
+
 	const newBullet = {
-		position: { ...rocket.position },
-		velocity: { ...rocket.velocity },
+		position,
+		velocity,
 	}
 
 	const bullets = [
@@ -465,7 +488,6 @@ function shotFired (state: GameState, action: Action) {
 
 const bulletActions = handleActions([
 	[shoot, shotFired],
-	[tick, moveBullet],
 ], [])
 
 // store ///////////////////////////////////////////////////////////////////////
@@ -488,6 +510,22 @@ function random (max = 1, min = 0) {
 // function randomFloor (max = 1, min = 0) {
 // 	return Math.floor(random(max, min))
 // }
+function reduceAll<T> (reducer: Reducer<T>): Reducer<T[]> {
+	return function (state: T[], action: Action): T[] {
+		const items: T[] = []
+		let count = state.length
+		while( count-- ) {
+			const item = reducer(state[count], action)
+			
+			if( !item ) continue 
+			
+			items.push( item )
+		}
+		return items
+	}
+}
+
+
 
 function setPropertyToPayload<T extends Mapable> (name: keyof T) {
 	return function (state: T, action: Action): T {
