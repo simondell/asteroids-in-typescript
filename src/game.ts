@@ -26,7 +26,8 @@ enum AsteroidActions {
 
 export const addAsteroid = createActionCreator(AsteroidActions.Add)
 
-export interface Asteroid {
+export interface Asteroid
+{
 	// colour:
 	// enabled: boolean
 	points: Vectors.Vector2[]
@@ -35,7 +36,8 @@ export interface Asteroid {
 	velocity: Vectors.Vector2
 }
 
-function randomAsteroid (): Asteroid {
+function randomAsteroid (): Asteroid
+{
 	const position = {
 		x: random(800),
 		y: random(600),
@@ -67,7 +69,8 @@ function randomAsteroid (): Asteroid {
 function moveAsteroid (
 	state: Asteroid,
 	action: Action
-){
+): Asteroid
+{
 	const position = Vectors.add(state.position, state.velocity)
 	return {
 		...state,
@@ -83,7 +86,11 @@ const asteroid = handleActions([
 
 const defaultAsteroids: Asteroid[] = []
 
-export function asteroids (state = defaultAsteroids, action: Action) {
+export function asteroids (
+	state = defaultAsteroids,
+	action: Action
+): Asteroid[]
+{
 	switch (action.type) {
 		case GameActions.Initialise: {
 			const rocks: Asteroid[] = []
@@ -128,7 +135,8 @@ export const engageThrust = createActionCreator(ControlsActions.ENGAGE_THRUST)
 export const setDirection = createActionCreator(ControlsActions.SET_DIRECTION)
 export const shoot = createActionCreator(ControlsActions.SHOOT)
 
-export interface Controls {
+export interface Controls
+{
 	direction: Directions
 	thrust: boolean
 }
@@ -146,7 +154,8 @@ export const controls = handleActions([
 ////////////////////////////////////////////////////////////////////////////////
 
 // rocket //////////////////////////////////////////////////////////////////////
-export interface Rocket {
+export interface Rocket
+{
 	acceleration: Vectors.Vector2
 	angle: number
 	position: Vectors.Vector2
@@ -163,7 +172,8 @@ const defaultRocket = {
 
 const rocket = handleAction(
 	tick,
-	(state: Rocket) => {
+	function (state: Rocket)
+	{
 		const newPosition = Vectors.add(state.position, state.velocity)
 		return {
 			...state,
@@ -175,7 +185,8 @@ const rocket = handleAction(
 ////////////////////////////////////////////////////////////////////////////////
 
 // bullets /////////////////////////////////////////////////////////////////////
-export interface Bullet {
+export interface Bullet
+{
 	position: Vectors.Vector2
 	velocity: Vectors.Vector2
 }
@@ -189,7 +200,8 @@ const defaultBullet = {
 // 	return state
 // }
 
-function moveBullet (bullet: Bullet, action: Action): Bullet | undefined {
+function moveBullet (bullet: Bullet, action: Action): Bullet | undefined
+{
 	const newPosition = Vectors.add(bullet.position, bullet.velocity)
 	return {
 		...bullet,
@@ -199,8 +211,8 @@ function moveBullet (bullet: Bullet, action: Action): Bullet | undefined {
 
 const bullets = handleActions([
 	[tick, reduceAll<Bullet>(moveBullet)],
-],
-[]
+	],
+	[]
 )
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -220,7 +232,8 @@ enum SettingsActions {
 export const setSpeed = createActionCreator(SettingsActions.Speed)
 export const stopAnimation = createActionCreator(SettingsActions.Stop)
 
-export interface Settings {
+export interface Settings
+{
 	gameHeight: number
 	gameWidth: number
 	speed: Speeds
@@ -232,14 +245,22 @@ const defaultSettings: Settings = {
 	speed: Speeds.Still,
 }
 
-function applyInitialSettings (state: Settings, action: Action): Settings {
+function applyInitialSettings (
+	state: Settings,
+	action: Action
+): Settings
+{
 	return {
 		...state,
 		...updateProps(state, action.payload.settings)
 	}
 }
 
-function stillMyBeatingHeart (state: Settings, action: Action): Settings {
+function stillMyBeatingHeart (
+	state: Settings,
+	action: Action
+): Settings
+{
 	return {
 		...state,
 		speed: Speeds.Still
@@ -254,7 +275,8 @@ const settings = handleActions([
 ////////////////////////////////////////////////////////////////////////////////
 
 // per slice ///////////////////////////////////////////////////////////////////
-export interface GameState {
+export interface GameState
+{
 	asteroids: Asteroid[]
 	bullets: Bullet[]
 	controls: Controls
@@ -274,7 +296,8 @@ const perSlice = combineInParallel({
 // cross-slice /////////////////////////////////////////////////////////////////
 const turnRocket = handleAction(
 	tick,
-	(state: GameState): GameState => {
+	function (state: GameState): GameState
+	{
 		const {
 			controls,
 			rocket,
@@ -301,7 +324,8 @@ const turnRocket = handleAction(
 
 const accelerateRocket = handleAction(
 	tick,
-	(state: GameState): GameState => {
+	function (state: GameState): GameState
+	{
 		const {
 			controls,
 			rocket,
@@ -368,7 +392,8 @@ const accelerateRocket = handleAction(
 // }
 const wrapAsteroids = handleAction(
 	tick,
-	(state: GameState) => {
+	function (state: GameState): GameState
+	{
 		const {
 			asteroids,
 			settings,
@@ -423,32 +448,37 @@ const wrapAsteroids = handleAction(
 const stationary = { x: 0, y: 0 }
 const wrapRocket = handleAction(
 	tick,
-	(state: GameState) => {
+	function (state: GameState): GameState
+	{
 		const {
 			rocket,
 			settings,
 		} = state
-
 		const { velocity } = rocket
+
 		if( Vectors.equal( velocity, stationary ) ) return state
 
 		let { x, y } = rocket.position
-		if( x < 0 ){
+		if( x < 0 )
+		{
 			x = settings.gameWidth
 		}
-		else if( x > settings.gameWidth){
+		else if( x > settings.gameWidth)
+		{
 			x = 0
 		} 
 
-		if( y < 0 ){
+		if( y < 0 )
+		{
 			y = settings.gameHeight;
 		}
-		else if ( y > settings.gameHeight ){
+		else if ( y > settings.gameHeight )
+		{
 		 y = 0
 		}
 
 		const position = { x, y }
-		const newRocket = updateProps(rocket, { position })
+		const newRocket: Rocket = updateProps<Rocket>( rocket, { position } )
 		return {
 			...state,
 			rocket: newRocket
@@ -459,7 +489,8 @@ const wrapRocket = handleAction(
 // function shotFired (state: GameState, action: Action) {
 const shotFired = handleAction(
 	shoot,
-	(state: GameState, action: Action): GameState => {
+	function (state: GameState, action: Action): GameState
+	{
 		const { rocket } = state
 
 		const offset = Vectors.rotateByDegrees(
@@ -492,22 +523,30 @@ const shotFired = handleAction(
 
 const cullLostBullets = handleAction(
 	tick,
-	(state: GameState): GameState => {
+	function (state: GameState): GameState
+	{
 		const { settings: {
 			gameHeight,
 			gameWidth,
 		}} = state
 
-		function cullWhenOutOfBounds (bullets: Bullet[], bullet: Bullet, index: number) {
+		function cullWhenOutOfBounds (
+			bullets: Bullet[],
+			bullet: Bullet,
+			index: number
+		): Bullet[]
+		{
 			const { position: { x, y } } = bullet
 			if(
 				(x > -2 && x < (gameWidth + 2))
 				&&
 				(y > -2 && y < (gameHeight + 2))
-			){
-					return bullets
+			)
+			{
+				return bullets
 			}
-			else {
+			else
+			{
 				return [
 					...bullets.slice(0, index),
 					...bullets.slice(index + 1)
@@ -536,40 +575,49 @@ export default combineInSeries(
 ////////////////////////////////////////////////////////////////////////////////
 
 // helpers /////////////////////////////////////////////////////////////////////
-function random (max = 1, min = 0) {
+function random (max = 1, min = 0): number
+{
 	return Math.random() * max + min
 }
 
 // function randomFloor (max = 1, min = 0) {
 // 	return Math.floor(random(max, min))
 // }
-function reduceAll<T> (reducer: Reducer<T>): Reducer<T[]> {
-	return function (state: T[], action: Action): T[] {
-		const items: T[] = []
-		let count = state.length
-		while( count-- ) {
-			const item = reducer(state[count], action)
-			
-			if( !item ) continue 
-			
-			items.push( item )
+function reduceAll<T> (reducer: Reducer<T>): Reducer<T[]>
+{
+	return (
+		function (state: T[], action: Action): T[]
+		{
+			const items: T[] = []
+			let count = state.length
+			while( count-- )
+			{
+				const item = reducer(state[count], action)
+				
+				if( !item ) continue 
+				
+				items.push( item )
+			}
+			return items
 		}
-		return items
-	}
+	)
 }
 
-
-
-function setPropertyToPayload<T extends Mapable> (name: keyof T) {
-	return function (state: T, action: Action): T {
-		return {
-			...state,
-			[name]: action.payload
+function setPropertyToPayload<T extends Mapable> (name: keyof T)
+{
+	return (
+		function (state: T, action: Action): T
+		{
+			return {
+				...state,
+				[name]: action.payload
+			}
 		}
-	}
+	)
 }
 
-function updateProps (state: Mapable, updates: Mapable) {
+function updateProps<T> (state: T, updates: Partial<T>)
+{
 	return {
 		...state,
 		...updates,
