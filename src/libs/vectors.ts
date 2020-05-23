@@ -18,6 +18,14 @@ export function equal (v1: Vector2, v2: Vector2) {
 	return v1.x == v2.x && v1.y == v2.y
 }
 
+export function magnitude ({ x, y }: Vector2 ): number {
+	return Math.sqrt( (x * x) + (y * y) )
+}
+
+export function magnitudeSquared ({ x, y }: Vector2): number {
+	return (x * x) + (y * y)
+}
+
 export function rotateByDegrees (degrees: number, vector: Vector2): Vector2 {
 	return rotateByRadians( degreesToRadians( degrees ), vector)
 }
