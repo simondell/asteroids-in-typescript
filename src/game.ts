@@ -561,6 +561,44 @@ const cullLostBullets = handleAction(
 	}
 )
 
+export const damageAsteroids = handleAction(
+	tick,
+	function (state: GameState): GameState
+	{
+		const {
+			asteroids,
+			bullets,
+		} = state
+
+		let bulletsLength = bullets.length
+
+		if( !bulletsLength ) return state
+
+		let survivors: Asteroid[] = [...asteroids]
+		let missed: Bullet[] = [...bullets]
+
+		for(let b = 0; b < bulletsLength; b++ )
+		{
+			const shot = missed[b]
+
+			for(let a = 0; a < asteroidsLength; a++ )
+			{
+				const roid = survivors[a]
+				const diff = Vectors.subtract( roid.position, shot.position )
+				const separation = Vectors.magnitude( diff )
+				const isHit = separation <= roid.radius
+
+			}
+		}
+
+		return {
+			...state,
+			asteroids: survivors,
+			bullets: missed,
+		}
+	}
+)
+
 // store ///////////////////////////////////////////////////////////////////////
 export default combineInSeries(
 	perSlice,
@@ -570,7 +608,7 @@ export default combineInSeries(
 	wrapRocket,
 	shotFired,
 	cullLostBullets,
-	// handleAction(tick, moveRocket),
+	damageAsteroids,
 )
 ////////////////////////////////////////////////////////////////////////////////
 
