@@ -625,7 +625,7 @@ export default combineInSeries(
 ////////////////////////////////////////////////////////////////////////////////
 
 // helpers /////////////////////////////////////////////////////////////////////
-function random (max = 1, min = 0): number
+export function random (max = 1, min = 0): number
 {
 	return Math.random() * max + min
 }
@@ -633,7 +633,8 @@ function random (max = 1, min = 0): number
 // function randomFloor (max = 1, min = 0) {
 // 	return Math.floor(random(max, min))
 // }
-function reduceAll<T> (reducer: Reducer<T>): Reducer<T[]>
+
+export function reduceAll<T> (reducer: Reducer<T>): Reducer<T[]>
 {
 	return (
 		function (state: T[], action: Action): T[]
@@ -653,7 +654,15 @@ function reduceAll<T> (reducer: Reducer<T>): Reducer<T[]>
 	)
 }
 
-function setPropertyToPayload<T extends Mapable> (name: keyof T)
+export function removeAt ( index: number, state: any[] ): any[]
+{
+	return [
+		...state.slice( 0, index ),
+		...state.slice( index + 1 )
+	]
+}
+
+export function setPropertyToPayload<T extends Mapable> (name: keyof T)
 {
 	return (
 		function (state: T, action: Action): T
@@ -666,7 +675,7 @@ function setPropertyToPayload<T extends Mapable> (name: keyof T)
 	)
 }
 
-function updateProps<T> (state: T, updates: Partial<T>)
+export function updateProps<T> (state: T, updates: Partial<T>): T
 {
 	return {
 		...state,

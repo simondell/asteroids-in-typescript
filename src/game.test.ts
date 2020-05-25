@@ -63,7 +63,7 @@ describe(
 							triangleAsteroid
 						]
 						const bullets: game.Bullet[] = []
-						
+
 						beforeTick = {
 							...mockState,
 							asteroids,
