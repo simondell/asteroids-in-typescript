@@ -43,7 +43,7 @@ dispatch( initialise({
 	settings: {
 		gameHeight: canvasHeight,
 		gameWidth: canvasWidth,
-		speed: Speeds.Fast,
+		speed: Speeds.Slow,
 	}
 }) )
 ////////////////////////////////////////////////////////////////////////////////
