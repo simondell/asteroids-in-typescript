@@ -168,7 +168,7 @@ describe(
 									asteroids,
 									bullets,
 								}
-console.log(`beforeTick`, beforeTick)
+
 								afterTick = game.damageAsteroids( beforeTick, game.tick() )
 							}
 						)
@@ -189,7 +189,7 @@ console.log(`beforeTick`, beforeTick)
 							}
 						)
 
-						test.only(
+						test(
 							'remove the bullet',
 							() =>
 							{
