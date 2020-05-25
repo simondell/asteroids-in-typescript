@@ -547,10 +547,7 @@ const cullLostBullets = handleAction(
 			}
 			else
 			{
-				return [
-					...bullets.slice(0, index),
-					...bullets.slice(index + 1)
-				]
+				return removeAt(index, bullets)
 			}
 		}
 
@@ -582,8 +579,8 @@ function getSurvivors (
 	if( collidingBullet == -1 ) return [survivors, bullets]
 
 	return [
-		[...survivors.slice(0, index), ...survivors.slice( index + 1 )],
-		[...bullets.slice(0, collidingBullet), ...bullets.slice(collidingBullet + 1)]
+		removeAt(index, survivors),
+		removeAt(collidingBullet, bullets)
 	]
 }
 
