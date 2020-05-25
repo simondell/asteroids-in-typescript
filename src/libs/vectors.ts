@@ -3,7 +3,7 @@ export interface Vector2 {
 	y: number
 }
 
-export function add ( v1: Vector2, v2: Vector2 ) {
+export function add ( v1: Vector2, v2: Vector2 ): Vector2 {
 	return {
 		x: v1.x + v2.x,
 		y: v1.y + v2.y,
@@ -14,7 +14,7 @@ export function degreesToRadians (angle: number): number {
 	return angle * Math.PI / 180
 }
 
-export function equal (v1: Vector2, v2: Vector2) {
+export function equal (v1: Vector2, v2: Vector2): boolean {
 	return v1.x == v2.x && v1.y == v2.y
 }
 
@@ -38,3 +38,11 @@ export function rotateByRadians (radians: number, vector: Vector2): Vector2 {
 	const y = (vector.x * sinRY) + (vector.y * cosRY)
 	return { x, y }
 }
+
+export function subtract ( v1: Vector2, v2: Vector2 ): Vector2 {
+	return {
+		x: v1.x - v2.x,
+		y: v1.y - v2.y,
+	}
+}
+
