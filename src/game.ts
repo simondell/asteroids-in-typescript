@@ -568,8 +568,7 @@ function getSurvivors (
 {
 	const [survivors, bullets] = hitsMisses
 	let collidingBullet = bullets.findIndex(
-		bullet =>
-		{
+		bullet => {
 			const diff = Vectors.subtract( asteroid.position, bullet.position )
 			const separation = Vectors.magnitude( diff )
 			return separation <= asteroid.radius

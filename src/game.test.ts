@@ -28,15 +28,13 @@ const triangleAsteroid = {
 
 describe(
 	'asteroids',
-	() =>
-	{
+	() => {
 		test.each([
 			[squareAsteroid, { x: 1, y: 2 }],
 			[triangleAsteroid, { x: 28, y: 37 }]
 		])(
 			'ticks should move %o to %j',
-			(roid, expectedPos) =>
-			{
+			(roid, expectedPos) => {
 				const moved = game.asteroids([roid], game.tick())
 
 				expect(moved[0].position).toEqual(expectedPos)
@@ -46,18 +44,16 @@ describe(
 )
 
 describe(
-	'blowing shit up',
-	() =>
-	{
+	'when bullets collide with asteroids',
+	() => {
 		let beforeTick: game.GameState
 		let afterTick: game.GameState
 
 		describe(
 			'when the rocket has not fired',
-			() =>
-			{
-				beforeEach(() =>
-					{
+			() => {
+				beforeEach(
+					() => {
 						const asteroids = [
 							squareAsteroid,
 							triangleAsteroid
@@ -75,8 +71,7 @@ describe(
 				)
 				test(
 					'expect no change to the asteroids',
-					() =>
-					{
+					() => {
 						expect( afterTick.asteroids ).toContain( squareAsteroid )
 						expect( afterTick.asteroids ).toContain( triangleAsteroid )
 					}
@@ -84,8 +79,7 @@ describe(
 
 				test(
 					'expect no change to the bullets',
-					() =>
-					{
+					() => {
 						expect( afterTick.bullets ).toEqual( [] )
 					}
 				)
@@ -94,8 +88,7 @@ describe(
 
 		describe(
 			'when the rocket has fired',
-			() =>
-			{
+			() => {
 				const hits = {
 					position: { x: 22, y: 42 },
 					velocity: { x: 10, y: 0 },
@@ -108,10 +101,9 @@ describe(
 
 				describe(
 					'and when the bullet misses all the asteroids',
-					() =>
-					{
-						beforeEach(() =>
-							{
+					() => {
+						beforeEach(
+							() => {
 								const asteroids = [
 									squareAsteroid,
 									triangleAsteroid,
@@ -132,8 +124,7 @@ describe(
 
 						test(
 							'retain all the asteroids',
-							() =>
-							{
+							() => {
 								expect( afterTick.asteroids ).toContain( squareAsteroid )
 								expect( afterTick.asteroids ).toContain( triangleAsteroid )
 							}
@@ -141,8 +132,7 @@ describe(
 
 						test(
 							'retain the bullet',
-							() =>
-							{
+							() => {
 								expect( afterTick.bullets ).toContain( misses )
 							}
 						)
@@ -151,10 +141,9 @@ describe(
 
 				describe(
 					'and when the bullet hits an asteroid',
-					() =>
-					{
-						beforeEach(() =>
-							{
+					() => {
+						beforeEach(
+							() => {
 								const asteroids = [
 									squareAsteroid,
 									triangleAsteroid,
@@ -175,24 +164,21 @@ describe(
 
 						test(
 							'remove the asteroid',
-							() =>
-							{
+							() => {
 								expect( afterTick.asteroids ).not.toContain( triangleAsteroid )
 							}
 						)
 
 						test(
 							'retain the other asteroid',
-							() =>
-							{
+							() => {
 								expect( afterTick.asteroids ).toContain( squareAsteroid )
 							}
 						)
 
 						test(
 							'remove the bullet',
-							() =>
-							{
+							() => {
 								expect( afterTick.bullets ).not.toContain( hits )
 							}
 						)
