@@ -174,6 +174,8 @@ const rocket = handleAction(
 	tick,
 	function (state: Rocket)
 	{
+		if( !state ) return state
+
 		const newPosition = Vectors.add(state.position, state.velocity)
 		return {
 			...state,
@@ -280,7 +282,7 @@ export interface GameState
 	asteroids: Asteroid[]
 	bullets: Bullet[]
 	controls: Controls
-	rocket: Rocket
+	rocket: Rocket | null
 	settings: Settings
 }
 
@@ -305,6 +307,7 @@ const turnRocket = handleAction(
 
 		const { direction } = controls
 
+		if( !rocket ) return state
 		if( direction === Directions.NEUTRAL ) return state
 
 		const angularVelocity = direction === Directions.LEFT ? - 5 : + 5
@@ -333,6 +336,7 @@ const accelerateRocket = handleAction(
 
 		const { thrust } = controls
 
+		if( !rocket ) return state
 		if( !thrust ) return state
 
 		const {
@@ -454,6 +458,9 @@ const wrapRocket = handleAction(
 			rocket,
 			settings,
 		} = state
+
+		if( !rocket ) return state
+
 		const { velocity } = rocket
 
 		if( Vectors.equal( velocity, stationary ) ) return state
@@ -607,6 +614,29 @@ export const damageAsteroids = handleAction(
 	}
 )
 
+export const asteroidsSmashRockets = handleAction(
+	tick,
+	function asteroidsSmashRockets (state: GameState ): GameState
+	{
+		if( !state.rocket ) return state
+
+		const isHit = state.asteroids.find( asteroid => {
+			const diff = Vectors.subtract( asteroid.position, state.rocket.position )
+			const separation = Vectors.magnitude( diff )
+			// The rocket collision is based on web drawing sizes. Better to add a 
+			//   width and length to the rocket and base it on (one of) those
+			return separation <= asteroid.radius + 10
+		})
+
+		if( !isHit ) return state
+
+		return {
+			...state,
+			rocket: null,
+		}
+	}
+)
+
 // store ///////////////////////////////////////////////////////////////////////
 export default combineInSeries(
 	perSlice,
@@ -617,6 +647,7 @@ export default combineInSeries(
 	shotFired,
 	cullLostBullets,
 	damageAsteroids,
+	asteroidsSmashRockets,
 )
 ////////////////////////////////////////////////////////////////////////////////
 

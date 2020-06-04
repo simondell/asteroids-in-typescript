@@ -187,6 +187,8 @@ export function renderRocket (
 	context: CanvasRenderingContext2D,
 	rocket: Rocket
 ): void {
+	if( !rocket ) return
+
 	context.save()
 	context.translate(
 		rocket.position.x,

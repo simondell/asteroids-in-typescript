@@ -188,4 +188,64 @@ describe(
 		)
 	}
 )
+
+describe(
+	'asteroidsSmashRockets()',
+	() => {
+		test(
+			'when rocket and asteroid collide the rocket gets nixed',
+			() => {
+				const rocketKillerAsteroid = {
+					testId: 'rocket-killer',
+					points: [
+						{ x: 0, y: 0 },
+						{ x: 0, y: -1 },
+						{ x: 1, y: -1 },
+						{ x: 1, y: 0 },
+					],
+	        position: { x: 420, y: 280 },
+					radius: 45,
+					velocity: { x: 0, y: 1 },
+				}
+
+				const stateBefore = {
+					...mockState,
+					asteroids: [
+						squareAsteroid,
+						triangleAsteroid,
+						rocketKillerAsteroid,
+					]
+				}
+
+				const stateAfter = game.asteroidsSmashRockets( stateBefore, game.tick() )
+
+				expect( stateAfter.rocket ).toEqual( null )
+			}
+		)
+
+		test(
+			'when rocket and asteroid don\'t collide, no state changes',
+			() => {
+				const stateBefore = {
+					...mockState,
+					asteroids: [
+						squareAsteroid,
+						triangleAsteroid,
+					]
+				}
+
+				const stateAfter = game.asteroidsSmashRockets( stateBefore, game.tick() )
+
+				expect( stateAfter.rocket ).toEqual( stateBefore.rocket )
+			}
+		)
+
+		// test(
+		// 	'the lives count reduces by 1',
+		// 	() => {
+				
+		// 	}
+		// )
+	}
+)
 ////////////////////////////////////////////////////////////////////////////////
