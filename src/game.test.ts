@@ -209,8 +209,11 @@ describe('when rockets and asteroids collide', () => {
 	// )
 })
 
-describe('scoring', () => {
+describe('the score', () => {
 	test('set to zero when game starts', () => {
+		const score = game.score(undefined, game.initialise())
+
+		expect(score).toEqual(0)
 
 	})
 })

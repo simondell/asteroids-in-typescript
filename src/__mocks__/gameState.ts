@@ -18,6 +18,7 @@ export default (
 			position: { x: 400, y: 300 },
 			velocity: { x: 0, y: 0 }
 		},
+		score: 0,
 		settings: {
 			gameHeight: 0,
 			gameWidth: 0,
