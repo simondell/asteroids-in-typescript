@@ -147,16 +147,19 @@ ticker.addEventListener('click', event => {
 })
 ////////////////////////////////////////////////////////////////////////////////
 
+// colours /////////////////////////////////////////////////////////////////////
+const backgroundColor = 'rgb(15, 8, 50)'
+const foregroundColor = '#fff'
+////////////////////////////////////////////////////////////////////////////////
 
-
-// background //////////////////////////////////////////////////////////////////
+// asteroid //////////////////////////////////////////////////////////////////
 export function renderAsteroid (
 	context: CanvasRenderingContext2D,
 	asteroid: Asteroid
 ): void {
 	context.save();
 	context.translate(asteroid.position.x, asteroid.position.y);
-	context.strokeStyle = "#ffffff";
+	context.strokeStyle = foregroundColor;
 	context.lineWidth = 2;
 	context.beginPath();
 
@@ -175,9 +178,9 @@ export function renderAsteroid (
 
 // background //////////////////////////////////////////////////////////////////
 function renderBackground ( context: CanvasRenderingContext2D ) {
-	context.strokeStyle = "#ffffff"
+	// context.strokeStyle = "#ff0000"
 	context.lineWidth = 2
-	context.fillStyle = 'rgb(15, 8, 50)'
+	context.fillStyle = backgroundColor
 	context.fillRect( 0, 0, canvasWidth, canvasHeight )
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -198,7 +201,7 @@ export function renderRocket (
 	const rads = Vectors.degreesToRadians( rocket.angle )
 	context.rotate( rads )
 
-	context.strokeStyle = "#fff"
+	context.strokeStyle = foregroundColor;
 	context.lineWidth = 2
 
 	context.beginPath()
@@ -221,7 +224,7 @@ export function renderBullet (
 	const radius = 2
 	const { x, y } = bullet.position
 	context.lineWidth = radius
-	context.strokeStyle = "#fff"
+	context.strokeStyle = foregroundColor;
 	context.beginPath()
 	context.arc(x, y, radius, 0, Math.PI * 2, true)
 	context.stroke()
@@ -234,9 +237,9 @@ export function renderScore (
 	score: number = 0
 )
 {
-	context.fillStyle = 'white'
-	context.font = '48px hyperspacebold'
-	context.fillText(`${score}`, 50, 40)
+	context.strokeStyle = foregroundColor;
+	context.font = '48px hyperspaceregular'
+	context.strokeText(`${score}`, 50, 40)
 }
 ////////////////////////////////////////////////////////////////////////////////
 
