@@ -228,6 +228,18 @@ export function renderBullet (
 }
 ////////////////////////////////////////////////////////////////////////////////
 
+// score ///////////////////////////////////////////////////////////////////////
+export function renderScore (
+	context: CanvasRenderingContext2D,
+	score: number = 0
+)
+{
+	context.fillStyle = 'white'
+	context.font = '48px hyperspacebold'
+	context.fillText(`${score}`, 50, 40)
+}
+////////////////////////////////////////////////////////////////////////////////
+
 // draw ///////////////////////////////////////////////////////////////////
 function draw (
 	context: CanvasRenderingContext2D,
@@ -239,6 +251,7 @@ function draw (
 		asteroids,
 		bullets,
 		rocket,
+		score,
 	} = store
 
 	renderBackground( context )
@@ -254,6 +267,8 @@ function draw (
 	}
 
 	renderRocket( context, rocket )
+
+	renderScore( context, score )
 
 	dispatch( tick() )
 }
