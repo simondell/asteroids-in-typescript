@@ -577,7 +577,7 @@ const cullLostBullets = handleAction(
 	}
 )
 
-type HitsMisses = [Asteroid[], Bullet[]]
+type HitsMisses = [Asteroid[], Bullet[], number]
 
 function getSurvivors (
 	hitsMisses: HitsMisses,
@@ -585,7 +585,7 @@ function getSurvivors (
 	index: number
 ): HitsMisses
 {
-	const [survivors, bullets] = hitsMisses
+	const [survivors, bullets, prevScore] = hitsMisses
 	let collidingBullet = bullets.findIndex(
 		bullet => {
 			const diff = Vectors.subtract( asteroid.position, bullet.position )
@@ -594,11 +594,14 @@ function getSurvivors (
 		}
 	)
 
-	if( collidingBullet == -1 ) return [survivors, bullets]
+	if( collidingBullet == -1 ) return [survivors, bullets, prevScore]
+
+	const score = prevScore + 1
 
 	return [
 		removeAt(index, survivors),
-		removeAt(collidingBullet, bullets)
+		removeAt(collidingBullet, bullets),
+		score,
 	]
 }
 
@@ -609,19 +612,21 @@ export const damageAsteroids = handleAction(
 		const {
 			asteroids,
 			bullets,
+			score,
 		} = state
 
 		if( !bullets.length ) return state
 
-		const [survivors, misses]: HitsMisses = asteroids.reduce(
+		const [survivors, misses, newScore]: HitsMisses = asteroids.reduce(
 			getSurvivors,
-			[asteroids, bullets]
+			[asteroids, bullets, score]
 		)
 
 		return {
 			...state,
 			asteroids: survivors,
 			bullets: misses,
+			score: newScore,
 		}
 	}
 )

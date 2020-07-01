@@ -37,11 +37,11 @@ describe('asteroids', () => {
 	})
 })
 
-describe('when bullets collide with asteroids', () => {
+describe('on bullet collisions with asteroids', () => {
 		let beforeTick: game.GameState
 		let afterTick: game.GameState
 
-		describe('when the rocket has not fired', () => {
+		describe('and when there are no bullets in play', () => {
 				beforeEach(
 					() => {
 						const asteroids = [
@@ -72,7 +72,7 @@ describe('when bullets collide with asteroids', () => {
 			}
 		)
 
-		describe('when the rocket has fired', () => {
+		describe('and when bullets are in play', () => {
 				const hits = {
 					position: { x: 22, y: 42 },
 					velocity: { x: 10, y: 0 },
@@ -152,6 +152,10 @@ describe('when bullets collide with asteroids', () => {
 								expect( afterTick.bullets ).not.toContain( hits )
 							}
 						)
+
+						test('increase the score by 1', () => {
+							expect( afterTick.score ).toEqual( beforeTick.score + 1 )
+						})
 					}
 				)
 			}
@@ -214,7 +218,6 @@ describe('the score', () => {
 		const score = game.score(undefined, game.initialise())
 
 		expect(score).toEqual(0)
-
 	})
 })
 ////////////////////////////////////////////////////////////////////////////////
