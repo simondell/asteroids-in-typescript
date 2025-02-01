@@ -18,7 +18,7 @@
   "bugs": {
     "url": "https://github.com/simondell/asteroids-in-typescript/issues"
   },
-  "homepage": "https://github.com/simondell/asteroids-in-typescript#readme",
+  "homepage": "https://simondell.github.io/asteroids-in-typescript/",
   "devDependencies": {
     "http-server": "^0.12.3",
     "typescript": "^3.8.3"
