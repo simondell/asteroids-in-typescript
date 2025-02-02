@@ -1,15 +1,19 @@
+// tsconfig.json, from Claude.ai
 {
-"compilerOptions": {
-  "esModuleInterop": true,
-  "module": "ESNext",
-  "moduleResolution": "node",
-  "noImplicitAny": true,
-  "removeComments": false,
-  "preserveConstEnums": true,
-  "outDir": "./build",
-  "inlineSourceMap": true,
-  "inlineSources": true
-},
-"include": ["src/**/*"],
-"exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"]
+  "compilerOptions": {
+    "target": "ES2020",            // Modern browsers support recent ECMAScript features
+    "module": "ES2020",            // Use ES modules
+    "moduleResolution": "node",   // Use modern module resolution strategy
+    "baseUrl": "./src",           // Base directory for resolving non-relative module names
+    "outDir": "./dist",          // Output directory for compiled files
+    "rootDir": "./src",          // Source files directory
+    "strict": true,              // Enable all strict type checking options
+    "esModuleInterop": true,     // Better interop with CommonJS modules
+    "skipLibCheck": true,        // Skip type checking of declaration files
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,             // Allow JavaScript files to be compiled
+    "checkJs": true              // Type check JavaScript files
+  },
+  "include": ["src/**/*"],       // Files to include in compilation
+  "exclude": ["node_modules", "dist", "**/*.test.ts"] // Files to exclude
 }
