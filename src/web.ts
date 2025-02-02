@@ -4,7 +4,6 @@ import {
 	Action,
 	createStore,
 	Dispatch,
-	Store,
 } from './libs/store.js'
 
 import gameLogic, {
@@ -25,7 +24,10 @@ import gameLogic, {
 
 // const canvas = document.createElement( 'canvas' )
 const canvas = (document.getElementById('screen')) as HTMLCanvasElement
+// if (!canvas) throw new Error('Could not find canvas element')
+
 const context = canvas.getContext( '2d' )
+// if (!context) throw new Error('Could not get 2d context from canvas')
 
 const canvasStyles = window.getComputedStyle(canvas)
 const canvasHeight = parseInt(canvasStyles.getPropertyValue('height'), 10)
@@ -108,26 +110,30 @@ stop.addEventListener('click', event => {
 })
 
 const radios = document.querySelector('#speeds')
-radios.addEventListener('click', event => {
+if (!radios) {
+  throw new Error('Could not find speeds radio group')
+}
+
+radios.addEventListener('click', (event) => {
 		event.preventDefault()
 
-		let radio: HTMLElement
-		// if it's a label
-		if( 'control' in event.target ) {
-			radio = (event.target as HTMLLabelElement).control
-		}
-		// if it's an input
-		else if( 'value' in event.target ) {
-			radio = event.target
-		}
+		// let radio: HTMLElement
+		// // if it's a label
+		// if( 'control' in event.target ) {
+		// 	radio = (event.target as HTMLLabelElement).control
+		// }
+		// // if it's an input
+		// else if( 'value' in event.target ) {
+		// 	radio = event.target
+		// }
 
 		const { value } = (event.target as HTMLInputElement)
 		const speed = parseInt(value, 10)
 		dispatch( setSpeed( speed ) )
 })
 
-function updateSpeedView (store: Store) {
-	const { settings: { speed } } = store
+function updateSpeedView (state: GameState) {
+	const { settings: { speed } } = state
 	const radios = document.querySelectorAll(`[type="radio"]`)
 
 	Array.prototype.forEach.call(radios, (radio: HTMLInputElement) => {
@@ -143,6 +149,9 @@ notify(updateSpeedView, false)
 const ticker = document.getElementById( 'ticker' ) as HTMLButtonElement
 ticker.addEventListener('click', event => {
 	event.preventDefault()
+
+	if(!context) throw new Error('Cannot draw next frame without 2d Canvas rendering context')
+
 	draw(context, getState(), dispatch)
 })
 ////////////////////////////////////////////////////////////////////////////////
@@ -152,7 +161,7 @@ const backgroundColor = 'rgb(15, 8, 50)'
 const foregroundColor = '#fff'
 ////////////////////////////////////////////////////////////////////////////////
 
-// asteroid //////////////////////////////////////////////////////////////////
+// asteroid ////////////////////////////////////////////////////////////////////
 export function renderAsteroid (
 	context: CanvasRenderingContext2D,
 	asteroid: Asteroid
@@ -279,7 +288,7 @@ function draw (
 
 // game loop ///////////////////////////////////////////////////////////////////
 let clearRestartNotifier: Function | null = null
-function restartgameLoop (store: Store): void {
+function restartgameLoop (): void {
 	if(clearRestartNotifier) {
 		clearRestartNotifier()
 		clearRestartNotifier = null
@@ -289,6 +298,8 @@ function restartgameLoop (store: Store): void {
 
 function gameLoop (): void {
 	const store = getState()
+
+	if(!context) throw new Error('Could not get 2d context from canvas')
 
 	draw(context, store, dispatch)
 

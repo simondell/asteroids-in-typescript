@@ -84,19 +84,17 @@ const asteroid = handleActions([
 	[tick, moveAsteroid]
 ], {})
 
-const defaultAsteroids: Asteroid[] = []
-
 export function asteroids (
-	state = defaultAsteroids,
+	state: Asteroid[] = [],
 	action: Action
 ): Asteroid[]
 {
-	switch (action.type) {
+	switch ( action.type ) {
 		case GameActions.Initialise: {
 			const rocks: Asteroid[] = []
 			let count = 5
 			while( count-- ) {
-				const rock = asteroid(undefined, action)
+				const rock = asteroid( undefined, action )
 				rocks.push( rock )
 			}
 			return rocks
@@ -106,7 +104,7 @@ export function asteroids (
 			const rocks: Asteroid[] = []
 			let count = state.length
 			while( count-- ) {
-				const rock = asteroid(state[count], action)
+				const rock = asteroid( state[count], action )
 				rocks.push( rock )
 			}
 			return rocks
@@ -144,7 +142,6 @@ export interface Controls
 const defaultControls = {
 	direction: Directions.NEUTRAL,
 	thrust: false,
-	// shoot: false,
 }
 
 export const controls = handleActions([
@@ -202,7 +199,7 @@ const defaultBullet = {
 // 	return state
 // }
 
-function moveBullet (bullet: Bullet, action: Action): Bullet | undefined
+function moveBullet (bullet: Bullet, action: Action): Bullet
 {
 	const newPosition = Vectors.add(bullet.position, bullet.velocity)
 	return {
@@ -211,8 +208,9 @@ function moveBullet (bullet: Bullet, action: Action): Bullet | undefined
 	}
 }
 
-const bullets = handleActions([
-	[tick, reduceAll<Bullet>(moveBullet)],
+const bullets = handleActions(
+	[
+		[tick, reduceAll<Bullet>(moveBullet)],
 	],
 	[]
 )
@@ -687,7 +685,7 @@ export function reduceAll<T> (reducer: Reducer<T>): Reducer<T[]>
 			let count = state.length
 			while( count-- )
 			{
-				const item = reducer(state[count], action)
+				const item = reducer( state[count], action )
 				
 				if( !item ) continue 
 				
