@@ -1,38 +1,25 @@
 import {
-	Action,
+	BaseAction,
 	combineInParallel,
 	combineInSeries,
 	createStore,
-	handleAction,
-	handleActions,
 	Mapable,
+	pipe,
 } from './store'
 
-function identity<T> (state: T | null = null, action: Action ): T | null {
-	return state
-}
-
-function noopReducer (state: void = undefined, action: Action ): void {
-	return
-}
-
-function generateOne (state = 1, action: Action ) {
+function generateOne (state = 1, action: BaseAction) {
 	return 1
 }
 
-function addOne (state = 0, action: Action ) {
+function addOne (state = 0, action: BaseAction) {
 	return state + 1
 }
 
-function addTwo (state = 0, action: Action ) {
-	return state + 2
-}
-
-function subtractOne (state = 0, action: Action ) {
+function subtractOne (state = 0, action: BaseAction) {
 	return state - 1
 }
 
-function addOrSubtractOne (state = 0, action: Action ) {
+function addOrSubtractOne (state = 0, action: BaseAction) {
 	switch (action.type) {
 		case 'TEST/ADD':
 			return state + 1
@@ -43,7 +30,7 @@ function addOrSubtractOne (state = 0, action: Action ) {
 	}
 }
 
-function toggleFlag (state = false, action: Action ) {
+function toggleFlag (state = false, action: BaseAction) {
 	if(action.type === 'TEST/TOGGLE') {
 		return !state
 	}
@@ -52,6 +39,7 @@ function toggleFlag (state = false, action: Action ) {
 }
 
 const mockAction = { type: 'TEST/MOCK_ACTION' }
+const initAction = { type: 'TEST/INIT' }
 
 describe('`combineInSeries()`', () => {
 	test('retured reducer applies source reducers in series', () => {
@@ -167,12 +155,12 @@ describe('`combineInParallel()`', () => {
 
 describe('`createStore()`', () => {
 	test('applies the reducer to generate initial state', () => {
-		const [getState] = createStore(addOrSubtractOne) 
+		const [getState] = createStore(addOrSubtractOne, initAction)
 		expect(getState()).toEqual(0)
 	})
 
 	test('maintains state', () => {
-		const [getState, dispatch] = createStore(addOrSubtractOne) 
+		const [getState, dispatch] = createStore(addOrSubtractOne, initAction)
 		const add = { type: 'TEST/ADD' }
 
 		dispatch(add)
@@ -180,56 +168,56 @@ describe('`createStore()`', () => {
 
 		expect(getState()).toEqual(2)
 	})
-})
 
-describe('`handleAction()` creates reducers...', () => {
-	test('which use their default value when called with `undefined`', () => {
-		const type = 'TEST/HANDLE_ACTION'
+	describe('notify/unsubscribe', () => {
+		test('unsubscribing an earlier listener does not break unsubscribing a later one', () => {
+			const [, dispatch, notify] = createStore(addOrSubtractOne, initAction)
 
-		const reducer = handleAction(type, identity, 23)
+			const clearFirst = notify(() => {}, false)
+			const seenBySecond: number[] = []
+			const clearSecond = notify(state => { seenBySecond.push(state) }, false)
 
-		expect(reducer(undefined, { type })).toEqual(23)
-	})
+			clearFirst()
+			clearSecond()
 
-	test('which use the current state, or the default value, when passed an action they don\'t handle', () => {
-		const typeHandled = 'TEST/HANDLE_ACTION'
-		const typeUnhandled = 'TEST/UNHANDLED_ACTION'
+			dispatch({ type: 'TEST/ADD' })
 
-		const reducer = handleAction(typeHandled, identity, 23)
+			expect(seenBySecond).toEqual([])
+		})
 
-		expect(reducer(undefined, { type: typeUnhandled })).toEqual(23)
-		expect(reducer(42, { type: typeUnhandled })).toEqual(42)
-	})
+		test('a listener that is still subscribed keeps receiving updates', () => {
+			const [, dispatch, notify] = createStore(addOrSubtractOne, initAction)
 
-	test('which applies the specified reducer when called with the recognised action', () => {
-		const type = 'TEST/HANDLE_ACTION'
+			const seen: number[] = []
+			notify(state => { seen.push(state) }, false)
 
-		const reducer = handleAction(type, addOne, 23)
+			dispatch({ type: 'TEST/ADD' })
+			dispatch({ type: 'TEST/ADD' })
 
-		expect(reducer(41, { type })).toEqual(42)
-	})
-
-	test('when passed an actionCreator, which behave as when passed a type string', () => {
-		const actionCreator = () => ({ type: 'TEST/HANDLE_ACTION' })
-
-		const reducer = handleAction(actionCreator, addOne, 41)
-
-		expect(reducer(undefined, actionCreator())).toEqual(42)
+			expect(seen).toEqual([1, 2])
+		})
 	})
 })
 
-describe('`handleActions()` creates reducers... ', () => {
-	test('... from a map of types to reducers', () => {
-		const typeOne = 'TEST/HANDLE_ACTIONS_ONE'
-		const typeTwo = 'TEST/HANDLE_ACTIONS_TWO'
+describe('`pipe()`', () => {
+	const addOneStep = (state: number) => state + 1
+	const double = (state: number) => state * 2
 
-		const reducer = handleActions([
-			[typeOne, addOne],
-			[typeTwo, addTwo],
-		], 23)
+	test('applies steps left to right', () => {
+		const transform = pipe(addOneStep, double)
 
-		expect(reducer(undefined, { type: 'TEST/UNHANDLED' })).toEqual(23)
-		expect(reducer(undefined, { type: typeOne })).toEqual(24)
-		expect(reducer(undefined, { type: typeTwo })).toEqual(25)
+		expect(transform(5)).toEqual(12)
+	})
+
+	test('works for a single step', () => {
+		const transform = pipe(addOneStep)
+
+		expect(transform(5)).toEqual(6)
+	})
+
+	test('returns state unchanged when given no steps', () => {
+		const transform = pipe<number>()
+
+		expect(transform(5)).toEqual(5)
 	})
 })
