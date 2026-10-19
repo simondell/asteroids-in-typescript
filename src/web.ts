@@ -1,13 +1,13 @@
 import * as Vectors from './libs/vectors.js'
 
 import {
-	Action,
 	createStore,
 	Dispatch,
 	Store,
 } from './libs/store.js'
 
 import gameLogic, {
+	Action,
 	Asteroid,
 	Bullet,
 	Directions,
@@ -38,14 +38,14 @@ canvas.width = canvasWidth
 // }
 
 // store ///////////////////////////////////////////////////////////////////////
-const [getState, dispatch, notify] = createStore<GameState>(gameLogic)
-dispatch( initialise({
-	settings: {
+const [getState, dispatch, notify] = createStore<GameState, Action>(
+	gameLogic,
+	initialise({
 		gameHeight: canvasHeight,
 		gameWidth: canvasWidth,
 		speed: Speeds.Fast,
-	}
-}) )
+	}),
+)
 ////////////////////////////////////////////////////////////////////////////////
 
 // "hardware" //////////////////////////////////////////////////////////////////
@@ -247,7 +247,7 @@ export function renderScore (
 function draw (
 	context: CanvasRenderingContext2D,
 	store: GameState,
-	dispatch: Dispatch
+	dispatch: Dispatch<Action>
 ){
 	const { direction } = store.controls
 	const {

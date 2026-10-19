@@ -1,94 +1,43 @@
-export interface Action {
-	payload?: any
+export interface BaseAction {
 	type: string
 }
 
-// export interface ActionT<U> {
-// 	payload?: any
-// 	type: U
-// }
-
-export interface Reducer<T> {
-	( state: T | undefined, action: Action ): T
+export interface Reducer<T, A extends BaseAction = BaseAction> {
+	( state: T | undefined, action: A ): T
 }
 
-// export interface Reducer<T, U> {
-// 	( state: T, action: ActionT<U> ): T
-// }
-
-export interface ReducerMap {
-	[ key: string ]: Reducer<any>
+export interface ReducerMap<A extends BaseAction = BaseAction> {
+	[ key: string ]: Reducer<any, A>
 }
-
-// export interface Selector<T> {
-// 	( s: Store ): T
-// }
 
 export interface Mapable {
 	[ key: string ]: any
 }
 
 export type Store = Mapable
-// export type Store = number | string | Array<any> | Mapable
 
-// actions /////////////////////////////////////////////////////////////////////
-interface ActionCreator {
-	(payload?: any): Action
-}
+// plain function composition, for steps that always run (no action to match against)
+export type Step<T> = ( state: T ) => T
 
-export function createActionCreator ( type: string ): ActionCreator {
-	return function ( payload?: any ): Action {
-		return {
-			type,
-			payload
-		}
+export function pipe<T> ( ...steps: Step<T>[] ): Step<T> {
+	return function applySteps ( state: T ): T {
+		return steps.reduce( ( nextState, step ) => step( nextState ), state )
 	}
 }
-
-type ActionKey = string | ActionCreator
-
-export function handleAction (
-	actionKey: ActionKey,
-	reducer: Reducer<any>,
-	defaultValue?: any,
-): Reducer<any> {
-	const typeMatch = typeof actionKey === 'function'
-		? actionKey().type
-		: actionKey
-
-	return function (state = defaultValue, action: Action) {
-		if(action.type === typeMatch) {
-			return reducer(state, action)
-		}
-
-		return state
-	}
-}
-
-type ActionHandlerSpec = [ActionKey, Reducer<any>]
-
-export function handleActions (
-	specs: ActionHandlerSpec[],
-	defaultValue: any,
-): Reducer<any> {
-	const reducers = specs.map(
-		([action, reducer]) => handleAction(action, reducer, defaultValue)
-	)
-	return combineInSeries(...reducers)
-}
-////////////////////////////////////////////////////////////////////////////////
 
 // reducers ////////////////////////////////////////////////////////////////////
-export function combineInParallel ( reducerMap: ReducerMap ): Reducer<ReducerMap> {
+export function combineInParallel<A extends BaseAction = BaseAction> (
+	reducerMap: ReducerMap<A>
+): Reducer<Mapable, A> {
 	const sliceNames = Object.keys(reducerMap)
 
-	return function reduceInParallel (state: Mapable = {}, action: Action ): Mapable {
+	return function reduceInParallel (state: Mapable = {}, action: A ): Mapable {
 		function createSlices (state: Mapable, sliceName: string): Mapable {
 			const sliceState = state[sliceName]
 			const reducer = reducerMap[sliceName]
 			const nextSliceState = reducer(sliceState, action)
 
-			if( nextSliceState == sliceState ) return state
+			if( nextSliceState === sliceState ) return state
 
 			return {
 				...state,
@@ -100,79 +49,69 @@ export function combineInParallel ( reducerMap: ReducerMap ): Reducer<ReducerMap
 	}
 }
 
-export function combineInSeries (...reducers: Reducer<any>[]): Reducer<any> {
-	return function reduceSequencially ( state: any, action: Action ): Store {
-		function serialCombine (state: Store, reducer: Reducer<any>) {
+export function combineInSeries<T, A extends BaseAction = BaseAction> (
+	...reducers: Reducer<T, A>[]
+): Reducer<T, A> {
+	return function reduceSequencially ( state: T | undefined, action: A ): T {
+		function serialCombine (state: T | undefined, reducer: Reducer<T, A>) {
 			return reducer(state, action)
 		}
 
-		return reducers.reduce(serialCombine, state)
+		return reducers.reduce(serialCombine, state) as T
 	}
 }
+////////////////////////////////////////////////////////////////////////////////
 
 // create the store, get the helpers ///////////////////////////////////////////
 export interface ClearNotification {
 	(): void
 }
 
-export interface Dispatch {
-	( a: Action ): void
+export interface Dispatch<A extends BaseAction = BaseAction> {
+	( a: A ): void
 }
 
 export interface GetState<T> {
 	(): T
 }
 
-export interface Listener {
-	(s: Store): void
+export interface Listener<T> {
+	( s: T ): void
 }
 
-export interface Notify {
-	( f: Function, b?: boolean ): ClearNotification
+export interface Notify<T> {
+	( f: Listener<T>, b?: boolean ): ClearNotification
 }
 
-export function createStore<T> (
-	rootReducer: Reducer<any>
-): [GetState<T>, Dispatch, Notify] {
+export function createStore<T, A extends BaseAction = BaseAction> (
+	rootReducer: Reducer<T, A>,
+	initialAction: A,
+): [GetState<T>, Dispatch<A>, Notify<T>] {
 	let state: T
-	let subscriptions: Function[] = []
+	let subscriptions: Listener<T>[] = []
 
-	// function bindToDispatch (actionCreator: ActionCreator) {
-	// 	const action = 
-	// 	return dispatch( actionCreator() )
-	// }
-
-	function dispatch(action: Action): void {
-// console.groupCollapsed(`dispatch -> ${action.type}`)
-// console.log(`old state`, state)
-// console.log(`action`, action)
+	function dispatch(action: A): void {
 		state = rootReducer(state, action)
-// console.log(`new state`, state)
-// console.groupEnd()
-		subscriptions.forEach(subscripton => { subscripton(state) })
+		subscriptions.forEach(subscription => { subscription(state) })
 	}
 
 	function getState (): T {
 		return state
 	}
 
-	function notify (listener: Listener, shouldInvokeImmediate = true) {
-		const length = subscriptions.push(listener)
+	function notify (listener: Listener<T>, shouldInvokeImmediate = true): ClearNotification {
+		subscriptions.push(listener)
 
 		if( shouldInvokeImmediate ) {
 			listener(state)
 		}
 
-		return function () {
-			subscriptions = [
-				...subscriptions.slice(0, length - 1),
-				...subscriptions.slice(length)
-			]
+		return function clearNotification () {
+			subscriptions = subscriptions.filter(subscription => subscription !== listener)
 		}
 	}
 
-	const init: Action = { type: 'STORE/INITIALISE' }
-	dispatch(init)
+	dispatch(initialAction)
 	return [getState, dispatch, notify]
 }
 ////////////////////////////////////////////////////////////////////////////////

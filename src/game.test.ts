@@ -56,7 +56,7 @@ describe('on bullet collisions with asteroids', () => {
 							bullets,
 						}
 
-						afterTick = game.damageAsteroids( beforeTick, game.tick() )
+						afterTick = game.damageAsteroids( beforeTick )
 					}
 				)
 				test('expect no change to the asteroids', () => {
@@ -100,7 +100,7 @@ describe('on bullet collisions with asteroids', () => {
 									bullets,
 								}
 
-								afterTick = game.damageAsteroids( beforeTick, game.tick() )
+								afterTick = game.damageAsteroids( beforeTick )
 							}
 						)
 
@@ -134,7 +134,7 @@ describe('on bullet collisions with asteroids', () => {
 									bullets,
 								}
 
-								afterTick = game.damageAsteroids( beforeTick, game.tick() )
+								afterTick = game.damageAsteroids( beforeTick )
 							}
 						)
 
@@ -186,7 +186,7 @@ describe('when rockets and asteroids collide', () => {
 				]
 			}
 
-			const stateAfter = game.asteroidsSmashRockets( stateBefore, game.tick() )
+			const stateAfter = game.asteroidsSmashRockets( stateBefore )
 
 			expect( stateAfter.rocket ).toEqual( null )
 	})
@@ -200,7 +200,7 @@ describe('when rockets and asteroids collide', () => {
 				]
 			}
 
-			const stateAfter = game.asteroidsSmashRockets( stateBefore, game.tick() )
+			const stateAfter = game.asteroidsSmashRockets( stateBefore )
 
 			expect( stateAfter.rocket ).toEqual( stateBefore.rocket )
 	})
